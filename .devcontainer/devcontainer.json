@@ -1,0 +1,25 @@
+{
+    "name": "Alchemorsel Development",
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+        "ghcr.io/devcontainers/features/go:1": {
+            "version": "1.24"
+        },
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "lts"
+        },
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "golang.go",
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode"
+            ]
+        }
+    },
+    "forwardPorts": [3000, 8000, 5432, 6379],
+    "postCreateCommand": "cd alchemorsel-v2-backend && go mod download && cd ../alchemorsel-v2-frontend && npm install",
+    "remoteUser": "vscode"
+} 

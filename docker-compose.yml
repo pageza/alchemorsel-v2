@@ -1,0 +1,89 @@
+services:
+  frontend:
+    build:
+      context: ./alchemorsel-v2-frontend
+      dockerfile: Dockerfile
+      target: development
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./alchemorsel-v2-frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./alchemorsel-v2-backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=postgres
+      - REDIS_HOST=redis
+      - DEEPSEEK_API_KEY_FILE=/run/secrets/deepseek_api_key
+    secrets:
+      - db_password
+      - db_user
+      - db_name
+      - redis_url
+      - aws_access_key_id
+      - aws_secret_access_key
+      - aws_region
+      - s3_bucket_name
+      - deepseek_api_key
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  postgres:
+    image: ankane/pgvector:latest
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=your_secure_password_here
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=alchemorsel
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
+  db_user:
+    file: ./secrets/db_user.txt
+  db_name:
+    file: ./secrets/db_name.txt
+  redis_url:
+    file: ./secrets/redis_url.txt
+  aws_access_key_id:
+    file: ./secrets/aws_access_key_id.txt
+  aws_secret_access_key:
+    file: ./secrets/aws_secret_access_key.txt
+  aws_region:
+    file: ./secrets/aws_region.txt
+  s3_bucket_name:
+    file: ./secrets/s3_bucket_name.txt
+  deepseek_api_key:
+    file: ./secrets/deepseek_api_key.txt 

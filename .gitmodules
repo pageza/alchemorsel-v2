@@ -1,0 +1,6 @@
+[submodule "backend"]
+	path = backend
+	url = https://github.com/pageza/alchemorsel-v2-backend
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/pageza/alchemorsel-v2-frontend
