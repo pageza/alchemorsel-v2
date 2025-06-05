@@ -20,6 +20,6 @@
         }
     },
     "forwardPorts": [3000, 8000, 5432, 6379],
-    "postCreateCommand": "cd alchemorsel-v2-backend && go mod download && cd ../alchemorsel-v2-frontend && npm install",
+    "postCreateCommand": "cd backend && go mod download && cd ../frontend && npm install",
     "remoteUser": "vscode"
 } 
