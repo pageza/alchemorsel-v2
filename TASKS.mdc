@@ -9,7 +9,7 @@ This file tracks all actionable items discovered during initial project evaluati
 ---
 
 ## Critical
-- [ ] **Fix Docker Compose paths** – `docker-compose.yml` references `./alchemorsel-v2-frontend` and `./alchemorsel-v2-backend`, which do not exist in the repository.
+- [x] **Fix Docker Compose paths** – `docker-compose.yml` references `./alchemorsel-v2-frontend` and `./alchemorsel-v2-backend`, which do not exist in the repository.
 - [ ] **Parameter mismatch in recipe search** – `frontend/src/services/api.ts` sends `query` but the backend expects `q`.
 - [ ] **Unimplemented recipe editing** – `RecipeCreateView.vue` has a TODO to implement editing logic.
 - [ ] **Environment configuration** – API base URL is hardcoded in `api.ts`; make it configurable.
