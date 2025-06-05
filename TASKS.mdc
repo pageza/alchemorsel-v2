@@ -1,0 +1,36 @@
+# Alchemorsel v2 Project Tasks
+
+This file tracks all actionable items discovered during initial project evaluation. Tasks are grouped by priority and will be addressed one by one. Before moving to the next item, confirmation from the project maintainer is required.
+
+## Legend
+- [ ] Pending
+- [x] Completed
+
+---
+
+## Critical
+- [ ] **Fix Docker Compose paths** – `docker-compose.yml` references `./alchemorsel-v2-frontend` and `./alchemorsel-v2-backend`, which do not exist in the repository.
+- [ ] **Parameter mismatch in recipe search** – `frontend/src/services/api.ts` sends `query` but the backend expects `q`.
+- [ ] **Unimplemented recipe editing** – `RecipeCreateView.vue` has a TODO to implement editing logic.
+- [ ] **Environment configuration** – API base URL is hardcoded in `api.ts`; make it configurable.
+
+## High
+- [ ] **Complete favorites UI** – Add frontend views to interact with `/recipes/:id/favorite` endpoints.
+- [ ] **Recipe update/delete flows** – Implement update and delete functionality in the frontend.
+- [ ] **Add integration tests** – Expand backend integration tests and create frontend tests (currently only one Vue unit test exists).
+- [ ] **Fill Navigation component** – Populate `Navigation.vue` with application links.
+
+## Medium
+- [ ] **Align profile API response** – `profileService.getProfile` assumes a `UserProfile` object but the backend returns `{ profile, recipes }`.
+- [ ] **Implement recipe editing/preview flow** – Allow editing generated recipes before saving.
+- [ ] **Improve error handling and user feedback** – Catch unauthorized responses and redirect to login, show user-friendly messages.
+- [ ] **Document project usage** – Provide root README with setup instructions explaining frontend/backend interaction.
+
+## Low
+- [ ] **Remove scaffold artifacts** – Delete default Vue sample files and unused CSS.
+- [ ] **Enhance styling and polish** – Apply styling similar to v1 of the project.
+- [ ] **Populate Navigation links and layout** – Finalize navigation structure.
+
+---
+
+Please confirm each task before moving forward with implementation.
