@@ -2,13 +2,118 @@
   "rules": [
     {
       "name": "Go Version Lock",
-      "description": "Enforces specific Go version and toolchain for backend service",
+      "description": "Enforces specific Go version and toolchain for backend service.",
       "path": "backend/go.mod",
       "pattern": {
         "go": "1.23",
         "toolchain": "go1.23.0"
       },
       "enforce": true
+    },
+    {
+      "name": "Automated Test Runner",
+      "description": "Runs the full test suite, captures all test output, and breaks failures into structured issues.",
+      "command": "go test ./... -v",
+      "capture_output": true,
+      "parse_failures": true,
+      "output_format": "json"
+    },
+    {
+      "name": "Failure Analysis",
+      "description": "Analyzes individual test failures for root cause and organizes them as issues with details: test name, failure message, file/line number, and affected module.",
+      "group_by": ["test", "module"],
+      "fields": [
+        "test_name",
+        "file",
+        "line_number",
+        "failure_message",
+        "stack_trace"
+      ],
+      "link_to_code": true
+    },
+    {
+      "name": "Cross-Impact Analysis",
+      "description": "For all failures, check for dependencies or shared modules. For each proposed fix, analyze if it may impact or break other tests.",
+      "dependency_analysis": true,
+      "cascade_check": true,
+      "output": [
+        "potential_cascading_issues",
+        "fix_order_recommendations"
+      ]
+    },
+    {
+      "name": "Action Plan Generation",
+      "description": "Presents prioritized, actionable steps: (1) group and summarize issues, (2) recommend fix order to minimize breakage, (3) note any fix with possible side effects, (4) present results as structured steps for agent workflow.",
+      "format": "ordered_steps",
+      "steps": [
+        "Summarize all issues.",
+        "Group by root cause and affected area.",
+        "Recommend an order of fixes to minimize cascading failures.",
+        "Highlight fixes with likely cross-impact.",
+        "Present as clear, agent-friendly action steps."
+      ]
+    },
+    {
+      "name": "No Skipped or Disabled Tests",
+      "description": "Ensure there are no skipped, disabled, or 'todo' tests in the codebase, so that the test suite represents actual project health.",
+      "patterns": [
+        "t.Skip",
+        "t.SkipNow",
+        "t.Skipf",
+        "test.todo",
+        "@Ignore",
+        "@Disabled"
+      ],
+      "enforce": true,
+      "action": "Fail the build or alert if any skipped/disabled tests are detected."
+    },
+    {
+      "name": "Test Coverage Threshold",
+      "description": "Enforce a minimum code coverage percentage for backend code to prevent untested logic from being merged.",
+      "command": "go test -cover ./...",
+      "min_coverage": 85,
+      "action": "Fail the build or alert if coverage is below threshold."
+    },
+    {
+      "name": "Static Analysis and Linting",
+      "description": "Run static analysis and linter tools to catch code quality issues before merging.",
+      "command": "golangci-lint run ./...",
+      "enforce": true,
+      "action": "Fail the build or alert if any linter errors are found."
+    },
+    {
+      "name": "Fail Fast on Critical Test Failures",
+      "description": "If critical/core tests fail (e.g., database connection, API routing), halt further test execution and flag immediately.",
+      "critical_tests": [
+        "TestDatabaseConnection",
+        "TestMainRouter",
+        "TestEnvLoading"
+      ],
+      "fail_fast": true
+    },
+    {
+      "name": "Regression Test on Known Issues",
+      "description": "Whenever a bug is fixed, require a regression test to cover the exact failure condition, and alert if new code reintroduces old failures.",
+      "require_regression_test": true
+    },
+    {
+      "name": "Test Artifact Retention",
+      "description": "Store full test logs and outputs for all test runs, including failed ones, to support detailed troubleshooting.",
+      "store_artifacts": true,
+      "artifact_path": "./test-artifacts/"
+    },
+    {
+      "name": "Automated Dependency Check",
+      "description": "Check for outdated or vulnerable dependencies and alert if action is needed before merging.",
+      "command": "go list -u -m all",
+      "alert_on_outdated": true
+    },
+    {
+      "name": "Consistent Test Naming",
+      "description": "Enforce naming conventions for test functions and files (e.g., functions start with Test, files end with _test.go).",
+      "function_pattern": "^Test[A-Z]",
+      "file_pattern": "_test\\.go$",
+      "enforce": true
     }
   ]
-} 
+}

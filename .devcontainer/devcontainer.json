@@ -15,7 +15,21 @@
             "extensions": [
                 "golang.go",
                 "dbaeumer.vscode-eslint",
-                "esbenp.prettier-vscode"
+                "esbenp.prettier-vscode",
+                "ms-edgedevtools.vscode-edge-devtools",
+                "github.vscode-github-actions",
+                "ryanluker.vscode-coverage-gutters",
+                "ms-azuretools.vscode-docker",
+                "GitHub.vscode-pull-request-github",
+                "ms-vscode.live-server",
+                "cweijan.vscode-postgresql-client2",
+                "yzhang.markdown-all-in-one",
+                "Postman.postman-for-vscode",
+                "Davidsekar.redis-xplorer",
+                "hbenl.vscode-test-explorer",
+                "redhat.vscode-yaml",
+                "ms-vscode.test-adapter-converter",
+                "Vue.volar"
             ]
         }
     },
