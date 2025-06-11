@@ -1,0 +1,9 @@
+---
+description: Agent should suggest minimal regression tests for any bug it helps fix.
+alwaysApply: true
+when: bugfix
+---
+test_suggestion_policy:
+  include_reproduction: true
+  mark_as_regression: true
+  avoid_duplicate_existing_tests: true

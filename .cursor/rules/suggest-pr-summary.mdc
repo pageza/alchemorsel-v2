@@ -1,0 +1,10 @@
+---
+description: When large changes occur, agent should offer a structured PR summary.
+alwaysApply: true
+when: review_or_commit
+---
+review_notes_policy:
+  offer_summary: true
+  include_changed_files: true
+  group_by_purpose: true
+  include_known_side_effects: true

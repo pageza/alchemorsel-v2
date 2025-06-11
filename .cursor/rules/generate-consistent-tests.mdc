@@ -1,0 +1,10 @@
+---
+description: Automatically generate test files in correct structure and naming.
+alwaysApply: true
+---
+test_generation_policy:
+  match_existing_structure: true
+  generate_if_missing: true
+  test_directory_rules:
+    suffix: "_test.go"
+    placement: "same_folder"

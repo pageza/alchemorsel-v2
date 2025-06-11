@@ -1,0 +1,9 @@
+---
+description: Ensure code is readable, clear, and not overly complex.
+alwaysApply: true
+---
+clarity_policy:
+  enforce_simple_conditions: true
+  avoid_nested_ternaries_or_else: true
+  rename_ambiguous_variables: true
+  require_explanation_on_complex_branches: true

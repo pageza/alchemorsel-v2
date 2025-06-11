@@ -1,0 +1,13 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: For all edits, agent must explain proposed changes, then wait for approval before modifying code.
+alwaysApply: true
+---
+edit_behavior_policy:
+  require_plan_and_rationale: true
+  wait_for_user_confirmation: true
+  forbid_unjustified_edits: true

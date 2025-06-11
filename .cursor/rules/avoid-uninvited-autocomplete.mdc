@@ -1,0 +1,8 @@
+---
+description: Agent should avoid overextending completions unless user intent is clear.
+alwaysApply: true
+---
+completions_policy:
+  autocomplete_if_user_starts_block: true
+  avoid_suggesting_extra_features: true
+  complete_minimally_unless_asked: true
