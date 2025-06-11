@@ -1,0 +1,8 @@
+---
+description: Performance optimizations must be justified; prioritize readability.
+alwaysApply: true
+---
+perf_policy:
+  avoid_premature_optimization: true
+  require_explanation_if_optimized: true
+  preserve_readability_over_microgains: true

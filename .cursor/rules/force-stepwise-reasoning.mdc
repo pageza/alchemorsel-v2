@@ -1,0 +1,8 @@
+---
+description: Agent must reason in steps before writing code.
+alwaysApply: true
+---
+reasoning_policy:
+  require_chain_of_thought: true
+  output_format: steps_then_code
+  disallow_code_without_justification: true

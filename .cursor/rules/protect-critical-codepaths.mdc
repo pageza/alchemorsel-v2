@@ -1,0 +1,13 @@
+---
+description: Protect critical, sensitive, or production-specific code paths from unapproved edits.
+alwaysApply: true
+---
+protected_paths:
+  require_explicit_approval: true
+  include:
+    - auth/**
+    - middleware/auth*
+    - handlers/payment*
+    - db/migrations/*
+    - env/**/prod*
+  behavior_on_match: explain_and_prompt

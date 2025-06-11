@@ -1,0 +1,8 @@
+---
+description: Agent must infer user intent from prompt, code, and history.
+alwaysApply: true
+---
+intent_resolution:
+  use_context_window: true
+  prefer_inference_over_guessing: true
+  ask_before_assuming: true

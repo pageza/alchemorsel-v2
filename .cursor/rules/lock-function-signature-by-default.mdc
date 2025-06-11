@@ -1,0 +1,8 @@
+---
+description: Function signatures must not change without explicit user instruction.
+alwaysApply: true
+---
+signature_policy:
+  change_function_signature: disallowed
+  suggest_alternatives: true
+  require_user_confirmation: true

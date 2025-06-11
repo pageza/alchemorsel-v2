@@ -1,0 +1,11 @@
+---
+description: Enforce consistent naming across all files and components.
+alwaysApply: true
+---
+naming_enforcement:
+  test_files: "snake_case"
+  test_functions: "CamelCase"
+  variables: "camelCase"
+  functions: "camelCase"
+  classes: "PascalCase"
+  mixed_conventions: disallow

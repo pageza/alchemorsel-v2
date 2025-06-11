@@ -1,0 +1,8 @@
+---
+description: Avoid guessing when unsure; prompt for clarification instead.
+alwaysApply: true
+---
+confidence_policy:
+  low_confidence_threshold: 70
+  behavior: ask_for_more_info
+  forbid_fallback_guessing: true

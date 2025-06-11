@@ -1,0 +1,8 @@
+---
+description: Maintain clean, scoped commit structure.
+alwaysApply: true
+---
+git_scope_policy:
+  suggest_commit_split_if_multiple_concerns: true
+  generate_commit_messages: when_requested
+  detect_unrelated_edits: warn

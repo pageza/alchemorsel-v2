@@ -1,0 +1,6 @@
+---
+description: Agent should suggest tests before logic when possible.
+alwaysApply: true
+---
+default_strategy: test_first
+ask_before_implementing_untested_logic: true
