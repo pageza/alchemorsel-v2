@@ -1,0 +1,19 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: When test failures are shared, the agent should perform holistic triage, reference relevant docs, plan and explain fixes, and wait for user confirmation before editing.
+alwaysApply: true
+when: test_debug
+---
+triage_policy:
+  mode: holistic
+  analyze_all_failures: true
+  reference_docs: true
+  output:
+    - fix_plan
+    - fix_explanation
+    - recommended_order
+    - edit_block: wait_for_user_confirmation

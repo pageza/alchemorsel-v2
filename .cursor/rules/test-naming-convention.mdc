@@ -1,0 +1,9 @@
+---
+description: Enforce test naming patterns.
+alwaysApply: true
+globs:
+  - "**/*_test.go"
+---
+function_pattern: "^Test[A-Z]"
+file_pattern: "_test\.go$"
+enforce: true

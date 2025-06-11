@@ -1,0 +1,9 @@
+---
+description: Guides the agent to use `go test ./... -v` and parse output.
+globs:
+  - backend/**/*.go
+---
+command: "go test ./... -v"
+capture_output: true
+parse_failures: true
+output_format: json

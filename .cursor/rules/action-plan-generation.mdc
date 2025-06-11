@@ -1,0 +1,11 @@
+---
+description: Agent generates structured, prioritized fix steps after test failures.
+alwaysApply: true
+---
+format: ordered_steps
+steps:
+  - Summarize all issues.
+  - Group by root cause and affected area.
+  - Recommend an order of fixes to minimize cascading failures.
+  - Highlight fixes with likely cross-impact.
+  - Present as clear, agent-friendly action steps.

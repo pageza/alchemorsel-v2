@@ -114,6 +114,38 @@
       "function_pattern": "^Test[A-Z]",
       "file_pattern": "_test\\.go$",
       "enforce": true
+    },
+    {
+      "name": "Database Test Setup Validation",
+      "description": "Ensures proper database initialization and migration in test setup to prevent 'table does not exist' errors.",
+      "validation_steps": [
+        {
+          "step": "Database Connection",
+          "checks": [
+            "Verify database container is running",
+            "Confirm connection parameters match environment",
+            "Validate database credentials"
+          ]
+        },
+        {
+          "step": "Schema Setup",
+          "checks": [
+            "Install required extensions (e.g., pgvector)",
+            "Create custom types and enums",
+            "Run all migrations before test execution"
+          ]
+        },
+        {
+          "step": "Test Execution",
+          "checks": [
+            "Ensure setupDatabase is called after connection",
+            "Verify tables exist before test operations",
+            "Clean up resources after test completion"
+          ]
+        }
+      ],
+      "enforce": true,
+      "action": "Fail the test if any validation step fails"
     }
   ]
 }

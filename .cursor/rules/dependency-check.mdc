@@ -1,0 +1,9 @@
+---
+description: Agent suggests checking for outdated dependencies when relevant.
+when: dependency_discussion
+globs:
+  - go.mod
+  - go.sum
+---
+command: "go list -u -m all"
+alert_on_outdated: true

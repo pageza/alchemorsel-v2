@@ -1,0 +1,9 @@
+---
+description: Agent prioritizes critical test failures but continues analysis.
+when: test_debug
+---
+critical_tests:
+  - TestDatabaseConnection
+  - TestMainRouter
+  - TestEnvLoading
+fail_fast: false

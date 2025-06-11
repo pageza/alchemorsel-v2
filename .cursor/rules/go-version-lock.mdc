@@ -1,0 +1,10 @@
+---
+description: Enforces specific Go version and toolchain for backend service.
+alwaysApply: true
+globs:
+  - backend/go.mod
+---
+pattern:
+  go: "1.23"
+  toolchain: "go1.23.0"
+enforce: true
