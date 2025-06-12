@@ -1,0 +1,8 @@
+---
+description: Enforce 85% coverage and recommend tests to reach threshold.
+alwaysApply: true
+when: test_debug
+---
+command: "go test -cover ./..."
+min_coverage: 85
+action: Alert if below threshold.

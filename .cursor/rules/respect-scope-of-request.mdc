@@ -1,0 +1,8 @@
+---
+description: Agent must stay within the requested scope.
+alwaysApply: true
+---
+scope_control:
+  allow_scope_expansion: false
+  flag_scope_drift: true
+  prompt_user_if_boundaries_are_ambiguous: true

@@ -1,0 +1,8 @@
+---
+description: Do not leave partial implementations or incomplete logic without TODOs.
+alwaysApply: true
+---
+incomplete_logic_policy:
+  placeholder_logic: require_TODO
+  suggest_follow_up_tasks: true
+  disallow_half-implemented_features: true

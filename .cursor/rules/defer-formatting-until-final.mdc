@@ -1,0 +1,7 @@
+---
+description: Format only after correct logic is implemented and tested.
+alwaysApply: true
+---
+formatting_policy:
+  format_only_after: logic_implemented
+  allow_user_to_trigger_formatting: true

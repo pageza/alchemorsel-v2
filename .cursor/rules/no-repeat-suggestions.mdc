@@ -1,0 +1,8 @@
+---
+description: Prevent agent from repeating declined suggestions in the same session.
+alwaysApply: true
+---
+repeat_prevention_policy:
+  remember_declines_this_session: true
+  remember_deferrals: true
+  suggest_again_only_if_user_triggers: true

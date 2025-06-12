@@ -1,0 +1,7 @@
+---
+description: All suggestions must reference their origin (context, prior message, or known standard).
+alwaysApply: true
+---
+traceability_policy:
+  require_origin_reference: true
+  if_uncertain: ask_for_user_input

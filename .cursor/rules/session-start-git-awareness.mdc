@@ -1,0 +1,11 @@
+---
+description: On new sessions, the agent should review recent git diffs and commits to reestablish context and avoid fix-break cycles.
+alwaysApply: true
+when: session_start
+---
+session_context_policy:
+  ask_for_git_diff: true
+  ask_for_recent_commits: true
+  use_diff_to_establish_state: true
+  infer_recent_fix_context: true
+  prevent_unjustified_code_reversal: true

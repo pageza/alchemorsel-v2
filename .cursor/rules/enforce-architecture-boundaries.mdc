@@ -1,0 +1,8 @@
+---
+description: Prevent agent from breaking architectural layering rules.
+alwaysApply: true
+---
+architecture_policy:
+  layering_order: ["handlers", "services", "repositories", "database"]
+  disallow_backflow: true
+  flag_leaky_abstractions: true

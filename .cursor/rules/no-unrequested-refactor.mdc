@@ -1,0 +1,8 @@
+---
+description: Agent must not refactor unless explicitly instructed.
+alwaysApply: true
+---
+refactor_policy:
+  suggest_only: true
+  require_user_confirmation: true
+  auto_refactor: false

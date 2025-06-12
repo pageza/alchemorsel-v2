@@ -25,6 +25,7 @@ services:
       - DB_HOST=postgres
       - REDIS_HOST=redis
       - DEEPSEEK_API_KEY_FILE=/run/secrets/deepseek_api_key
+      - OPENAI_API_KEY_FILE=/run/secrets/openai_api_key
     secrets:
       - db_password
       - db_user
@@ -35,6 +36,7 @@ services:
       - aws_region
       - s3_bucket_name
       - deepseek_api_key
+      - openai_api_key
     depends_on:
       postgres:
         condition: service_healthy
@@ -86,4 +88,6 @@ secrets:
   s3_bucket_name:
     file: ./secrets/s3_bucket_name.txt
   deepseek_api_key:
-    file: ./secrets/deepseek_api_key.txt 
+    file: ./secrets/deepseek_api_key.txt
+  openai_api_key:
+    file: ./secrets/openai_api_key.txt 

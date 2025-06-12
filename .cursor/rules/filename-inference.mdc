@@ -1,0 +1,6 @@
+---
+description: Use filename and path context to determine file purpose and behavior.
+alwaysApply: true
+---
+use_filename_context: true
+use_path_for_semantics: true

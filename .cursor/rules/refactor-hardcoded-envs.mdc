@@ -1,0 +1,14 @@
+---
+description: Allow hardcoded env values temporarily for testing but require TODO and flag for refactor.
+alwaysApply: true
+---
+env_protection_policy:
+  allow_temp_hardcoding_for_testing: true
+  require_todo_or_comment: true
+  disallow_commit_without_refactor: true
+  suggest_abstraction_layer: "config/env loader"
+  examples_of_sensitive_keys:
+    - OPENAI_API_KEY
+    - DATABASE_URL
+    - REDIS_PASSWORD
+    - STRIPE_SECRET

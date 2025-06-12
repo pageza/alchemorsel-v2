@@ -1,0 +1,8 @@
+---
+description: Preserve public API contracts unless changes are explicitly approved.
+alwaysApply: true
+---
+api_contract_policy:
+  freeze_exported_functions: true
+  flag_interface_changes: true
+  require_diff_explanation: true

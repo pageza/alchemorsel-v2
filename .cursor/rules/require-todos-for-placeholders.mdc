@@ -1,0 +1,11 @@
+---
+description: Automatically insert TODOs for incomplete or stubbed code.
+alwaysApply: true
+---
+todo_policy:
+  enforce_for:
+    - stubbed_function
+    - hardcoded_value
+    - empty_branch
+    - unimplemented_case
+  format: "// TODO: [short label] — [optional explanation]"

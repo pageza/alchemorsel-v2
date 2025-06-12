@@ -1,0 +1,7 @@
+---
+description: Agent must preserve comments, docstrings, and TODOs unless explicitly asked.
+alwaysApply: true
+---
+comment_preservation:
+  enforce: true
+  warn_on_change: true

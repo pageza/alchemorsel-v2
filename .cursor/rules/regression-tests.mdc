@@ -1,0 +1,6 @@
+---
+description: Prompt for regression tests after fixing bugs.
+alwaysApply: true
+when: bugfix
+---
+require_regression_test: true

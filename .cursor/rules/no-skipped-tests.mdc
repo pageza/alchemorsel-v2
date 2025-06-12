@@ -1,0 +1,15 @@
+---
+description: Block skipped/disabled tests from being committed.
+alwaysApply: true
+globs:
+  - "**/*_test.go"
+---
+patterns:
+  - t.Skip
+  - t.SkipNow
+  - t.Skipf
+  - test.todo
+  - "@Ignore"
+  - "@Disabled"
+enforce: true
+action: Fail the build or alert if any skipped/disabled tests are detected.

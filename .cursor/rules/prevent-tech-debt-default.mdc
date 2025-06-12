@@ -1,0 +1,8 @@
+---
+description: Avoid introducing shortcuts that lead to tech debt.
+alwaysApply: true
+---
+tech_debt_policy:
+  shortcuts_require_warning: true
+  must_explain_long_term_impact: true
+  favor_robust_solution_over_speed: true

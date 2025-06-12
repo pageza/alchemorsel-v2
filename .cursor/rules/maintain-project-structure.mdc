@@ -1,0 +1,8 @@
+---
+description: Enforce file/folder structure; no unsolicited moves or restructuring.
+alwaysApply: true
+---
+structure_policy:
+  preserve_existing_structure: true
+  forbid_file_moves: true
+  warn_on_new_folders: true

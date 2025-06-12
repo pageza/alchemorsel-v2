@@ -1,0 +1,8 @@
+---
+description: Group and explain related edits; avoid mixing concerns.
+alwaysApply: true
+---
+edit_policy:
+  group_related_changes: true
+  explain_each_change_group: true
+  disallow_mixed_purpose_commits: true

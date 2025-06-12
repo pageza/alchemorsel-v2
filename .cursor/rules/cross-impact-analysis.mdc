@@ -1,0 +1,9 @@
+---
+description: Cross-analyze test failures for shared dependencies and side effects.
+alwaysApply: true
+---
+dependency_analysis: true
+cascade_check: true
+output:
+  - potential_cascading_issues
+  - fix_order_recommendations

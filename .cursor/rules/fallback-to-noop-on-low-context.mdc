@@ -1,0 +1,9 @@
+---
+description: If context is insufficient, the agent should do nothing and prompt for clarification.
+alwaysApply: true
+---
+safe_fallback_policy:
+  if_context_low:
+    action: prompt_for_more
+    explanation: "Need more info to safely proceed."
+    do_nothing_until_confirmed: true

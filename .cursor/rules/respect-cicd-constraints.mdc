@@ -1,0 +1,8 @@
+---
+description: Ensure changes do not conflict with existing CI/CD pipelines or constraints.
+alwaysApply: true
+---
+ci_cd_policy:
+  check_for_existing_tests: true
+  avoid_changes_that_break_pipeline: true
+  prefer_incremental_changes: true

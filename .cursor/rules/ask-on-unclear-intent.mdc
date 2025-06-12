@@ -1,0 +1,8 @@
+---
+description: Agent must ask for clarification if user prompt is ambiguous or underspecified.
+alwaysApply: true
+---
+clarity_policy:
+  prompt_on_ambiguous_instruction: true
+  request_scope_if_missing: true
+  avoid_guessing_user_goals: true

@@ -1,0 +1,12 @@
+---
+description: Agent must comment non-trivial logic, edge cases, and unclear names.
+alwaysApply: true
+---
+comment_policy:
+  require_explanation_for:
+    - business_logic
+    - edge_cases
+    - math_or_conditionals
+    - obscure_variable_names
+    - error_handling
+  disallow_comment_deletion: true

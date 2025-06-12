@@ -1,0 +1,9 @@
+---
+description: Maintain logging consistency; no ad hoc logs.
+alwaysApply: true
+---
+logging_policy:
+  disallow: ["fmt.Println", "fmt.Printf"]
+  enforce_levels: ["debug", "info", "warn", "error"]
+  require_context_fields: ["request_id", "user_id"]
+  logger_usage: "log.WithFields(...)"

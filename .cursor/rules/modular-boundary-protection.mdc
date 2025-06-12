@@ -1,0 +1,8 @@
+---
+description: Agent must not cross module boundaries without user approval.
+alwaysApply: true
+---
+modular_respect:
+  allow_cross_module: false
+  ask_if_unsure: true
+  require_confirmation_for_shared_code_changes: true

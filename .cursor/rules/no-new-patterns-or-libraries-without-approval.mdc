@@ -1,0 +1,8 @@
+---
+description: Prevent introducing new libraries or patterns without user approval.
+alwaysApply: true
+---
+additions_policy:
+  new_library_imports: require_approval
+  new_patterns: require_explanation_and_consent
+  third_party_dependencies: disallowed_by_default

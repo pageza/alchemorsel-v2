@@ -1,0 +1,8 @@
+---
+description: Suggest lint fixes in backend without running them.
+globs:
+  - backend/**/*.go
+---
+command: "golangci-lint run ./..."
+enforce: true
+action: Suggest lint fixes only, do not execute.

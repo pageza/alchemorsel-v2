@@ -1,0 +1,8 @@
+---
+description: Minimize diffs and avoid unnecessary rewrites.
+alwaysApply: true
+---
+edit_minimization:
+  prefer_patch_over_rebuild: true
+  disallow_reformat_without_functional_change: true
+  warn_on_large_diff: true
