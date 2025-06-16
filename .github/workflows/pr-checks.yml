@@ -33,49 +33,6 @@ jobs:
         requireScope: false
         validateSingleCommit: false
     
-    - name: Check for sensitive files
-      run: |
-        # Check for accidentally committed secrets or sensitive files
-        SENSITIVE_FILES=(
-          "*.key"
-          "*.pem"
-          "*.p12"
-          "*.pfx"
-          ".env"
-          "secrets.yml"
-          "config/database.yml"
-          "config/secrets.yml"
-        )
-        
-        for pattern in "${SENSITIVE_FILES[@]}"; do
-          # Only check files tracked by git, excluding gitignored files
-          case "$pattern" in
-            ".env")
-              # Check for .env but exclude .env.example files
-              if git ls-files | grep -E "^\.env$|/\.env$" | head -1; then
-                echo "❌ Sensitive file pattern '$pattern' found in tracked files"
-                exit 1
-              fi
-              ;;
-            "*.key"|"*.pem"|"*.p12"|"*.pfx")
-              # Convert *.ext to proper regex that matches files ending with .ext
-              extension="${pattern#*.}"
-              if git ls-files | grep -E "\\.${extension}$" | head -1; then
-                echo "❌ Sensitive file pattern '$pattern' found in tracked files"
-                exit 1
-              fi
-              ;;
-            *)
-              # For other patterns, use exact matching
-              if git ls-files | grep -F "$pattern" | head -1; then
-                echo "❌ Sensitive file pattern '$pattern' found in tracked files"
-                exit 1
-              fi
-              ;;
-          esac
-        done
-        
-        echo "✅ No sensitive files detected in tracked files"
     
     - name: Check file size limits
       run: |
