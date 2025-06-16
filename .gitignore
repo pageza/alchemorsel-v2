@@ -14,3 +14,7 @@ node_modules
 *.pem
 *.p12
 *.pfx
+
+# E2E Tests environment files
+ui-tests/.env
+ui-tests/.env.local
