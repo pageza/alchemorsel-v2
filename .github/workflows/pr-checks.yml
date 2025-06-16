@@ -48,13 +48,14 @@ jobs:
         )
         
         for pattern in "${SENSITIVE_FILES[@]}"; do
-          if find . -name "$pattern" -type f | grep -v node_modules | grep -v ".git" | head -1; then
-            echo "❌ Sensitive file pattern '$pattern' found in PR"
+          # Only check files tracked by git, excluding gitignored files
+          if git ls-files | grep -E "${pattern//\*/.*}" | head -1; then
+            echo "❌ Sensitive file pattern '$pattern' found in tracked files"
             exit 1
           fi
         done
         
-        echo "✅ No sensitive files detected"
+        echo "✅ No sensitive files detected in tracked files"
     
     - name: Check file size limits
       run: |
@@ -174,7 +175,7 @@ jobs:
       with:
         args: >
           -Dsonar.projectKey=alchemorsel-v2
-          -Dsonar.organization=your-organization
+          -Dsonar.organization=pageza
           -Dsonar.sources=.
           -Dsonar.exclusions=**/node_modules/**,**/coverage/**,**/dist/**,**/bin/**
           -Dsonar.go.coverage.reportPaths=backend/coverage.out
