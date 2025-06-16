@@ -117,7 +117,6 @@ jobs:
         go-version: '1.23'
     
     - name: Check Go dependencies
-      working-directory: ./backend
       run: |
         echo "Checking Go dependencies for vulnerabilities..."
         
@@ -126,8 +125,8 @@ jobs:
           go install golang.org/x/vuln/cmd/govulncheck@latest
         fi
         
-        # Run vulnerability check
-        govulncheck ./... || {
+        # Run vulnerability check in backend directory
+        cd backend && govulncheck ./... || {
           echo "❌ Go dependencies have vulnerabilities"
           exit 1
         }
