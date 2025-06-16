@@ -2,7 +2,7 @@ name: Alchemorsel CI Pipeline
 
 on:
   push:
-    branches: [ main, master, develop ]
+    branches: [ main, master, develop, codex-1 ]
   pull_request:
     branches: [ main, master, develop ]
   workflow_dispatch:
