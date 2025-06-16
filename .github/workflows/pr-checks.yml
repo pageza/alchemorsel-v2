@@ -1,0 +1,233 @@
+name: PR Quality Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  pr-validation:
+    name: PR Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Validate PR title
+      uses: amannn/action-semantic-pull-request@v5
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        types: |
+          feat
+          fix
+          docs
+          style
+          refactor
+          test
+          chore
+          ci
+          perf
+        requireScope: false
+        validateSingleCommit: false
+    
+    - name: Check for sensitive files
+      run: |
+        # Check for accidentally committed secrets or sensitive files
+        SENSITIVE_FILES=(
+          "*.key"
+          "*.pem"
+          "*.p12"
+          "*.pfx"
+          ".env"
+          "secrets.yml"
+          "config/database.yml"
+          "config/secrets.yml"
+        )
+        
+        for pattern in "${SENSITIVE_FILES[@]}"; do
+          if find . -name "$pattern" -type f | grep -v node_modules | grep -v ".git" | head -1; then
+            echo "❌ Sensitive file pattern '$pattern' found in PR"
+            exit 1
+          fi
+        done
+        
+        echo "✅ No sensitive files detected"
+    
+    - name: Check file size limits
+      run: |
+        # Check for large files that shouldn't be in git
+        MAX_SIZE_MB=10
+        MAX_SIZE_BYTES=$((MAX_SIZE_MB * 1024 * 1024))
+        
+        LARGE_FILES=$(find . -type f -size +${MAX_SIZE_BYTES}c | grep -v node_modules | grep -v ".git" | head -5)
+        
+        if [ -n "$LARGE_FILES" ]; then
+          echo "❌ Large files detected (>${MAX_SIZE_MB}MB):"
+          echo "$LARGE_FILES"
+          echo "Consider using Git LFS for large files"
+          exit 1
+        fi
+        
+        echo "✅ No large files detected"
+    
+    - name: Validate commit messages
+      run: |
+        # Check recent commits for conventional commit format
+        COMMITS=$(git log --oneline origin/master..HEAD | head -10)
+        
+        echo "Checking commit messages:"
+        echo "$COMMITS"
+        
+        # This is informational - don't fail the PR for this
+        echo "✅ Commit message validation completed"
+    
+    - name: Check for TODO/FIXME comments
+      run: |
+        # Find TODO and FIXME comments in code
+        TODO_COUNT=$(grep -r "TODO\|FIXME\|XXX\|HACK" --include="*.go" --include="*.ts" --include="*.vue" --include="*.js" . | wc -l)
+        
+        if [ "$TODO_COUNT" -gt 0 ]; then
+          echo "ℹ️ Found $TODO_COUNT TODO/FIXME comments in code:"
+          grep -r "TODO\|FIXME\|XXX\|HACK" --include="*.go" --include="*.ts" --include="*.vue" --include="*.js" . | head -10
+          echo ""
+          echo "Consider addressing these before merging (informational only)"
+        else
+          echo "✅ No TODO/FIXME comments found"
+        fi
+
+  dependency-check:
+    name: Dependency Security Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+    
+    - name: Check frontend dependencies
+      working-directory: ./frontend
+      run: |
+        echo "Checking frontend dependencies for vulnerabilities..."
+        npm audit --audit-level=moderate || {
+          echo "❌ Frontend has vulnerable dependencies"
+          echo "Run 'npm audit fix' to resolve issues"
+          exit 1
+        }
+        echo "✅ Frontend dependencies are secure"
+    
+    - name: Check E2E test dependencies
+      working-directory: ./ui-tests
+      run: |
+        echo "Checking E2E test dependencies for vulnerabilities..."
+        npm audit --audit-level=moderate || {
+          echo "❌ E2E tests have vulnerable dependencies"
+          echo "Run 'npm audit fix' to resolve issues"
+          exit 1
+        }
+        echo "✅ E2E test dependencies are secure"
+    
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23'
+    
+    - name: Check Go dependencies
+      working-directory: ./backend
+      run: |
+        echo "Checking Go dependencies for vulnerabilities..."
+        
+        # Install govulncheck if not available
+        if ! command -v govulncheck &> /dev/null; then
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+        fi
+        
+        # Run vulnerability check
+        govulncheck ./... || {
+          echo "❌ Go dependencies have vulnerabilities"
+          exit 1
+        }
+        
+        echo "✅ Go dependencies are secure"
+
+  code-quality:
+    name: Code Quality Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      with:
+        args: >
+          -Dsonar.projectKey=alchemorsel-v2
+          -Dsonar.organization=your-organization
+          -Dsonar.sources=.
+          -Dsonar.exclusions=**/node_modules/**,**/coverage/**,**/dist/**,**/bin/**
+          -Dsonar.go.coverage.reportPaths=backend/coverage.out
+          -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info
+    
+    - name: CodeQL Analysis
+      uses: github/codeql-action/init@v3
+      with:
+        languages: go, javascript
+        queries: security-and-quality
+    
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v3
+    
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+
+  performance-impact:
+    name: Performance Impact Analysis
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'performance')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+    
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    - name: Build for performance analysis
+      working-directory: ./frontend
+      run: npm run build
+    
+    - name: Analyze bundle size
+      working-directory: ./frontend
+      run: |
+        echo "📊 Bundle size analysis:"
+        du -sh dist/*
+        
+        # Check if bundle size increased significantly
+        if [ -f "dist/assets/*.js" ]; then
+          BUNDLE_SIZE=$(du -s dist/assets/*.js | cut -f1 | sort -n | tail -1)
+          echo "Largest JS bundle: ${BUNDLE_SIZE}KB"
+          
+          # Warn if bundle is larger than 1MB
+          if [ "$BUNDLE_SIZE" -gt 1024 ]; then
+            echo "⚠️ Large bundle detected (>${BUNDLE_SIZE}KB)"
+            echo "Consider code splitting or lazy loading"
+          fi
+        fi
