@@ -15,12 +15,18 @@
     "setup": "node scripts/setup-test-data.js",
     "cleanup": "node scripts/cleanup-test-data.js"
   },
-  "keywords": ["e2e", "testing", "puppeteer", "vue", "recipes"],
+  "keywords": [
+    "e2e",
+    "testing",
+    "puppeteer",
+    "vue",
+    "recipes"
+  ],
   "author": "Alchemorsel Team",
   "license": "MIT",
   "devDependencies": {
     "c8": "^8.0.1",
-    "puppeteer": "^21.0.0"
+    "puppeteer": "^24.10.1"
   },
   "dependencies": {
     "dotenv": "^16.3.1"
