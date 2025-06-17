@@ -58,6 +58,12 @@ services:
       - jwt_secret
       - server_port
       - server_host
+      - smtp_host
+      - smtp_port
+      - smtp_username
+      - smtp_password
+      - email_from
+      - email_from_name
     depends_on:
       postgres:
         condition: service_healthy
@@ -129,4 +135,16 @@ secrets:
   server_port:
     file: ./secrets/server_port
   server_host:
-    file: ./secrets/server_host 
+    file: ./secrets/server_host
+  smtp_host:
+    file: ./secrets/smtp_host.txt
+  smtp_port:
+    file: ./secrets/smtp_port.txt
+  smtp_username:
+    file: ./secrets/smtp_username.txt
+  smtp_password:
+    file: ./secrets/smtp_password.txt
+  email_from:
+    file: ./secrets/email_from.txt
+  email_from_name:
+    file: ./secrets/email_from_name.txt 
