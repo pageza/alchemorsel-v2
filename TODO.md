@@ -11,10 +11,10 @@
    - Database schema updates
    - Testing
 
-2. **Recipe Search on Recipes Page** (2 days)
-   - Implement search UI component
-   - Wire up to existing backend search
-   - Add filters and sorting
+2. ✅ **Recipe Search on Recipes Page** (2 days)
+   - ✅ Implement search UI component
+   - ✅ Wire up to existing backend search
+   - ✅ Add filters and sorting
 
 3. **Dashboard Database Integration** (3 days)
    - Connect dashboard to real data
@@ -178,7 +178,7 @@
 - ❌ Implement Dashboard with database integration 
 - ❌ Add image generation to save recipe function for photorealistic recipe images 
 - ❌ Implement Featured Recipes on Home/Landing page (remove placeholders) 
-- ❌ Implement Search functionality on Recipes page 
+- ✅ Implement Search functionality on Recipes page 
 - ❌ Add comments to the recipe details page and wire up the backend 
 - ❌ Add a 'Share' button to the recipe details page and wire up the backend 
 - ❌ Add an Admin dashboard for the app, with the ability to view all users, recipes, and other data, like activity, traffic, any kind of useful metric to keep track of. 
