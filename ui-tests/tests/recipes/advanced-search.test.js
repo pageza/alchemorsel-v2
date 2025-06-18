@@ -204,7 +204,7 @@ describe('Advanced Recipe Search and Filtering', () => {
       // Login as user with dietary preferences
       const user = {
         email: 'vegetarian@alchemorsel.com',
-        password: 'VegPass123!'
+        password: process.env.TEST_USER_PASSWORD || 'test-password'
       };
       
       await auth.login(user.email, user.password);

@@ -26,7 +26,7 @@ describe('Admin Authentication Flow', () => {
       // Use seeded admin credentials
       const adminUser = {
         email: 'admin@alchemorsel.com',
-        password: 'AdminPass123!'
+        password: process.env.ADMIN_USER_PASSWORD || 'admin-password'
       };
 
       const loginSuccess = await auth.login(adminUser.email, adminUser.password);
@@ -59,7 +59,7 @@ describe('Admin Authentication Flow', () => {
       // Login as regular user
       const regularUser = {
         email: 'cook@alchemorsel.com',
-        password: 'CookPass123!'
+        password: process.env.TEST_USER_PASSWORD || 'test-password'
       };
 
       const loginSuccess = await auth.login(regularUser.email, regularUser.password);
@@ -90,7 +90,7 @@ describe('Admin Authentication Flow', () => {
       // Login as admin
       const adminUser = {
         email: 'admin@alchemorsel.com',
-        password: 'AdminPass123!'
+        password: process.env.ADMIN_USER_PASSWORD || 'admin-password'
       };
 
       await auth.login(adminUser.email, adminUser.password);
@@ -119,7 +119,7 @@ describe('Admin Authentication Flow', () => {
       // Login as moderator
       const moderatorUser = {
         email: 'moderator@alchemorsel.com',
-        password: 'ModPass123!'
+        password: process.env.TEST_USER_PASSWORD || 'test-password'
       };
 
       const loginSuccess = await auth.login(moderatorUser.email, moderatorUser.password);
