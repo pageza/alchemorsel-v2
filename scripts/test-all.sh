@@ -5,6 +5,14 @@
 
 set -e  # Exit on any error
 
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Get the project root directory (parent of scripts)
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Change to project root
+cd "$PROJECT_ROOT"
+
 echo "🧪 ALCHEMORSEL COMPLETE TEST RUNNER"
 echo "=================================="
 
@@ -36,7 +44,7 @@ command_exists() {
 print_section "🔧 Backend Tests (Go)"
 
 if [ -d "backend" ]; then
-    cd backend
+    cd "$PROJECT_ROOT/backend"
     
     # Check if secrets exist, otherwise use test keys
     if [ -f "../secrets/deepseek_api_key.txt" ] && [ -f "../secrets/openai_api_key.txt" ]; then
@@ -58,7 +66,7 @@ if [ -d "backend" ]; then
         BACKEND_RESULT=0
     fi
     
-    cd ..
+    cd "$PROJECT_ROOT"
 else
     echo -e "${RED}❌ Backend directory not found${NC}"
 fi
@@ -66,7 +74,7 @@ fi
 print_section "🎨 Frontend Tests (Vue.js)"
 
 if [ -d "frontend" ]; then
-    cd frontend
+    cd "$PROJECT_ROOT/frontend"
     
     # Check if node_modules exists
     if [ ! -d "node_modules" ]; then
@@ -99,7 +107,7 @@ if [ -d "frontend" ]; then
         FRONTEND_RESULT=0
     fi
     
-    cd ..
+    cd "$PROJECT_ROOT"
 else
     echo -e "${RED}❌ Frontend directory not found${NC}"
 fi
@@ -107,7 +115,7 @@ fi
 print_section "🌐 E2E Tests (Puppeteer)"
 
 if [ -d "ui-tests" ]; then
-    cd ui-tests
+    cd "$PROJECT_ROOT/ui-tests"
     
     # Check if node_modules exists
     if [ ! -d "node_modules" ]; then
@@ -137,7 +145,7 @@ EOF
         E2E_RESULT=0
     fi
     
-    cd ..
+    cd "$PROJECT_ROOT"
 else
     echo -e "${RED}❌ UI tests directory not found${NC}"
 fi

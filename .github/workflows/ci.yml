@@ -25,10 +25,58 @@ env:
   REDIS_VERSION: 'redis:7-alpine'
 
 jobs:
+  # Version validation job
+  version-check:
+    name: Version Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Validate version files
+      run: |
+        echo "🔍 Validating version consistency..."
+        
+        # Check if VERSION file exists and is valid
+        if [ ! -f VERSION ]; then
+          echo "❌ VERSION file not found"
+          exit 1
+        fi
+        
+        VERSION=$(cat VERSION)
+        if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+          echo "❌ Invalid version format in VERSION file: $VERSION"
+          echo "Expected format: major.minor.patch (e.g., 1.2.3)"
+          exit 1
+        fi
+        
+        echo "✅ VERSION file valid: $VERSION"
+        
+        # Check package.json files
+        if [ -f frontend/package.json ]; then
+          FRONTEND_VERSION=$(grep '"version"' frontend/package.json | sed 's/.*"version": "\([^"]*\)".*/\1/')
+          if [ "$FRONTEND_VERSION" != "$VERSION" ]; then
+            echo "⚠️ Frontend package.json version ($FRONTEND_VERSION) differs from VERSION file ($VERSION)"
+          else
+            echo "✅ Frontend package.json version matches"
+          fi
+        fi
+        
+        if [ -f ui-tests/package.json ]; then
+          UI_VERSION=$(grep '"version"' ui-tests/package.json | sed 's/.*"version": "\([^"]*\)".*/\1/')
+          if [ "$UI_VERSION" != "$VERSION" ]; then
+            echo "⚠️ UI tests package.json version ($UI_VERSION) differs from VERSION file ($VERSION)"
+          else
+            echo "✅ UI tests package.json version matches"
+          fi
+        fi
+
   # Backend testing job
   backend-tests:
     name: Backend Tests
     runs-on: ubuntu-latest
+    needs: version-check
     
     services:
       postgres:
@@ -141,6 +189,7 @@ jobs:
   frontend-tests:
     name: Frontend Tests
     runs-on: ubuntu-latest
+    needs: version-check
     
     steps:
     - name: Checkout code
