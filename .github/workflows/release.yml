@@ -93,20 +93,17 @@ jobs:
       with:
         fetch-depth: 0
     
-    - name: Generate changelog
+    - name: Make version script executable
+      run: chmod +x scripts/version.sh
+    
+    - name: Generate changelog using version script
       id: changelog
       run: |
-        # Get the previous tag
-        PREV_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
         CURRENT_TAG=${GITHUB_REF#refs/tags/}
+        VERSION=${CURRENT_TAG#v}
         
-        if [ -n "$PREV_TAG" ]; then
-          echo "## What's Changed" > CHANGELOG.md
-          git log --pretty=format:"- %s (%h)" ${PREV_TAG}..HEAD >> CHANGELOG.md
-        else
-          echo "## Initial Release" > CHANGELOG.md
-          echo "This is the first release of Alchemorsel v2." >> CHANGELOG.md
-        fi
+        # Use our version script to generate changelog
+        ./scripts/version.sh changelog "$VERSION"
         
         echo "changelog<<EOF" >> $GITHUB_OUTPUT
         cat CHANGELOG.md >> $GITHUB_OUTPUT
