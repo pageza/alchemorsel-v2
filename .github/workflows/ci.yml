@@ -1,0 +1,549 @@
+name: Alchemorsel CI Pipeline
+
+on:
+  push:
+    branches: [ main, master, develop, codex-1 ]
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+    inputs:
+      run_e2e:
+        description: 'Run E2E tests'
+        required: false
+        type: boolean
+        default: true
+      deploy:
+        description: 'Deploy after successful tests'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  GO_VERSION: '1.23'
+  NODE_VERSION: '20.x'
+  POSTGRES_VERSION: 'pgvector/pgvector:pg16'
+  REDIS_VERSION: 'redis:7-alpine'
+
+jobs:
+  # Version validation job
+  version-check:
+    name: Version Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Validate version files
+      run: |
+        echo "🔍 Validating version consistency..."
+        
+        # Check if VERSION file exists and is valid
+        if [ ! -f VERSION ]; then
+          echo "❌ VERSION file not found"
+          exit 1
+        fi
+        
+        VERSION=$(cat VERSION)
+        if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+          echo "❌ Invalid version format in VERSION file: $VERSION"
+          echo "Expected format: major.minor.patch (e.g., 1.2.3)"
+          exit 1
+        fi
+        
+        echo "✅ VERSION file valid: $VERSION"
+        
+        # Check package.json files
+        if [ -f frontend/package.json ]; then
+          FRONTEND_VERSION=$(grep '"version"' frontend/package.json | sed 's/.*"version": "\([^"]*\)".*/\1/')
+          if [ "$FRONTEND_VERSION" != "$VERSION" ]; then
+            echo "⚠️ Frontend package.json version ($FRONTEND_VERSION) differs from VERSION file ($VERSION)"
+          else
+            echo "✅ Frontend package.json version matches"
+          fi
+        fi
+        
+        if [ -f ui-tests/package.json ]; then
+          UI_VERSION=$(grep '"version"' ui-tests/package.json | sed 's/.*"version": "\([^"]*\)".*/\1/')
+          if [ "$UI_VERSION" != "$VERSION" ]; then
+            echo "⚠️ UI tests package.json version ($UI_VERSION) differs from VERSION file ($VERSION)"
+          else
+            echo "✅ UI tests package.json version matches"
+          fi
+        fi
+
+  # Backend testing job
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    needs: version-check
+    
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: alchemorsel_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ env.GO_VERSION }}
+        cache-dependency-path: backend/go.sum
+    
+    - name: Install dependencies
+      working-directory: ./backend
+      run: |
+        go mod download
+        go mod verify
+    
+    - name: Run Go linter
+      working-directory: ./backend
+      run: |
+        # Install golangci-lint if not available
+        if ! command -v golangci-lint &> /dev/null; then
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+        fi
+        make lint || echo "Linting completed with warnings"
+    
+    - name: Run backend tests
+      working-directory: ./backend
+      env:
+        # Database configuration
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_USER: postgres
+        DB_PASSWORD: postgres
+        DB_NAME: alchemorsel_test
+        DB_SSL_MODE: disable
+        
+        # Redis configuration
+        REDIS_HOST: localhost
+        REDIS_PORT: 6379
+        REDIS_PASSWORD: ""
+        
+        # JWT configuration
+        JWT_SECRET: test-jwt-secret-for-ci-pipeline
+        
+        # Server configuration
+        SERVER_PORT: 8080
+        SERVER_HOST: localhost
+        
+        # API Keys (from GitHub Secrets)
+        DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        
+        # AWS configuration (for profile picture uploads)
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+      run: |
+        # Run tests with coverage
+        go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+    
+    - name: Upload backend coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./backend/coverage.out
+        flags: backend
+        name: backend-coverage
+        token: ${{ secrets.CODECOV_TOKEN }}
+    
+    - name: Build backend
+      working-directory: ./backend
+      run: make build
+    
+    - name: Upload backend binary
+      uses: actions/upload-artifact@v4
+      with:
+        name: backend-binary
+        path: backend/bin/api
+        retention-days: 7
+
+  # Frontend testing job
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    needs: version-check
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    - name: Run TypeScript type checking
+      working-directory: ./frontend
+      run: npm run type-check
+    
+    - name: Run ESLint
+      working-directory: ./frontend
+      run: npm run lint
+    
+    - name: Run frontend unit tests
+      working-directory: ./frontend
+      run: npm run test:unit -- --coverage
+    
+    - name: Upload frontend coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        directory: ./frontend/coverage
+        flags: frontend
+        name: frontend-coverage
+        token: ${{ secrets.CODECOV_TOKEN }}
+    
+    - name: Build frontend
+      working-directory: ./frontend
+      run: npm run build
+    
+    - name: Upload frontend build
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-dist
+        path: frontend/dist/
+        retention-days: 7
+
+  # E2E testing job
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    if: ${{ !failure() && (github.event.inputs.run_e2e != 'false') }}
+    
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: alchemorsel_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: |
+          frontend/package-lock.json
+          ui-tests/package-lock.json
+    
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ env.GO_VERSION }}
+        cache-dependency-path: backend/go.sum
+    
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: go mod download
+    
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    - name: Install E2E test dependencies
+      working-directory: ./ui-tests
+      run: npm ci
+    
+    - name: Setup E2E test environment
+      run: |
+        # Create environment file for E2E tests
+        cat > ui-tests/.env << EOF
+        BASE_URL=http://localhost:5173
+        API_BASE_URL=http://localhost:8080
+        HEADLESS=true
+        SCREENSHOT_ON_FAILURE=true
+        TEST_RETRIES=2
+        TEST_USER_EMAIL=test@alchemorsel.com
+        TEST_USER_PASSWORD=TestPassword123
+        EOF
+        
+        # Create necessary directories
+        mkdir -p ui-tests/screenshots
+        mkdir -p ui-tests/reports
+        mkdir -p ui-tests/videos
+    
+    - name: Download backend binary
+      uses: actions/download-artifact@v4
+      with:
+        name: backend-binary
+        path: backend/bin/
+    
+    - name: Download frontend build
+      uses: actions/download-artifact@v4
+      with:
+        name: frontend-dist
+        path: frontend/dist/
+    
+    - name: Make backend binary executable
+      run: chmod +x backend/bin/api
+    
+    - name: Start backend server
+      working-directory: ./backend
+      env:
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_USER: postgres
+        DB_PASSWORD: postgres
+        DB_NAME: alchemorsel_test
+        DB_SSL_MODE: disable
+        REDIS_HOST: localhost
+        REDIS_PORT: 6379
+        JWT_SECRET: test-jwt-secret-for-ci-pipeline
+        SERVER_PORT: 8080
+        SERVER_HOST: localhost
+        DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+      run: |
+        # Run database migrations
+        go run ./cmd/migrate
+        
+        # Start server in background
+        ./bin/api &
+        
+        # Wait for server to be ready
+        timeout 60 bash -c 'until curl -f http://localhost:8080/health 2>/dev/null; do sleep 2; done' || {
+          echo "Backend server failed to start"
+          curl -v http://localhost:8080/health || echo "Health check failed"
+          exit 1
+        }
+        
+        echo "Backend server is ready"
+    
+    - name: Start frontend server
+      working-directory: ./frontend
+      run: |
+        # Start frontend dev server in background
+        npm run dev &
+        
+        # Wait for frontend to be ready
+        timeout 60 bash -c 'until curl -f http://localhost:5173 2>/dev/null; do sleep 2; done' || {
+          echo "Frontend server failed to start"
+          curl -v http://localhost:5173 || echo "Frontend health check failed"
+          exit 1
+        }
+        
+        echo "Frontend server is ready"
+    
+    - name: Install Chrome dependencies
+      run: |
+        # Install Chrome dependencies for Puppeteer
+        sudo apt-get update
+        sudo apt-get install -y \
+          ca-certificates \
+          fonts-liberation \
+          libappindicator3-1 \
+          libasound2 \
+          libatk-bridge2.0-0 \
+          libgtk-3-0 \
+          libnspr4 \
+          libnss3 \
+          lsb-release \
+          xdg-utils \
+          xvfb
+    
+    - name: Run E2E tests
+      working-directory: ./ui-tests
+      env:
+        DISPLAY: :99
+      run: |
+        # Start virtual display for headless Chrome
+        Xvfb :99 -screen 0 1920x1080x24 &
+        
+        # Wait for display to be ready
+        sleep 3
+        
+        # Run the comprehensive E2E test
+        node tests/comprehensive-e2e.test.js
+    
+    - name: Upload E2E test screenshots
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: e2e-screenshots
+        path: ui-tests/screenshots/
+        retention-days: 14
+    
+    - name: Upload E2E test videos
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: e2e-videos
+        path: ui-tests/videos/
+        retention-days: 7
+
+  # Security scanning job
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # Performance testing job (optional)
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'performance')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Run Lighthouse CI
+      uses: treosh/lighthouse-ci-action@v11
+      with:
+        configPath: './frontend/lighthouserc.json'
+        uploadArtifacts: true
+        temporaryPublicStorage: true
+
+  # Deployment job (conditional)
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests, e2e-tests]
+    if: >
+      success() && 
+      (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && 
+      (github.event.inputs.deploy == 'true' || github.event_name == 'push')
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Download backend binary
+      uses: actions/download-artifact@v4
+      with:
+        name: backend-binary
+        path: ./backend/bin/
+    
+    - name: Download frontend build
+      uses: actions/download-artifact@v4
+      with:
+        name: frontend-dist
+        path: ./frontend/dist/
+    
+    - name: Deploy to staging
+      run: |
+        echo "🚀 Deploying to staging environment..."
+        echo "Backend binary: $(ls -la backend/bin/)"
+        echo "Frontend build: $(ls -la frontend/dist/)"
+        # Add actual deployment commands here
+        echo "Deployment would happen here"
+    
+    - name: Run smoke tests
+      run: |
+        echo "🧪 Running smoke tests on staging..."
+        # Add smoke test commands here
+        echo "Smoke tests would run here"
+    
+    - name: Deploy to production
+      if: success()
+      run: |
+        echo "🎉 Deploying to production environment..."
+        # Add production deployment commands here
+        echo "Production deployment would happen here"
+
+  # Notification job
+  notify:
+    name: Notify
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests, e2e-tests]
+    if: always()
+    
+    steps:
+    - name: Notify on success
+      if: ${{ needs.backend-tests.result == 'success' && needs.frontend-tests.result == 'success' && needs.e2e-tests.result == 'success' }}
+      run: |
+        echo "✅ All tests passed successfully!"
+        # Add Slack/Discord/email notification here
+    
+    - name: Notify on failure
+      if: ${{ needs.backend-tests.result == 'failure' || needs.frontend-tests.result == 'failure' || needs.e2e-tests.result == 'failure' }}
+      run: |
+        echo "❌ Some tests failed!"
+        echo "Backend: ${{ needs.backend-tests.result }}"
+        echo "Frontend: ${{ needs.frontend-tests.result }}"
+        echo "E2E: ${{ needs.e2e-tests.result }}"
+        # Add failure notification here

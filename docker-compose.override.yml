@@ -1,0 +1,27 @@
+# Docker Compose override file for development
+# This file can be used to override image tags for local development
+# Usage: docker compose -f docker-compose.yml -f docker-compose.override.yml up
+
+services:
+  frontend:
+    # Override with local development settings
+    image: alchemorsel/frontend:${ALCHEMORSEL_VERSION:-v1.2.0}
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+      labels:
+        - "version=${ALCHEMORSEL_VERSION:-v1.2.0}"
+        - "component=frontend"
+        - "maintainer=alchemorsel-team"
+
+  backend:
+    # Override with local development settings  
+    image: alchemorsel/backend:${ALCHEMORSEL_VERSION:-v1.2.0}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      labels:
+        - "version=${ALCHEMORSEL_VERSION:-v1.2.0}"
+        - "component=backend"
+        - "maintainer=alchemorsel-team"

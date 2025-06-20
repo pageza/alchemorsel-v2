@@ -1,0 +1,34 @@
+{
+  "name": "alchemorsel-ui-tests",
+  "version": "1.2.0",
+  "description": "E2E UI tests for Alchemorsel recipe management application",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test tests/**/*.test.js",
+    "test:auth": "node --test tests/auth/*.test.js",
+    "test:recipes": "node --test tests/recipes/*.test.js",
+    "test:profile": "node --test tests/profile/*.test.js",
+    "test:integration": "node --test tests/integration/*.test.js",
+    "test:watch": "node --test --watch tests/**/*.test.js",
+    "test:debug": "node --test --inspect tests/**/*.test.js",
+    "test:coverage": "c8 node --test tests/**/*.test.js",
+    "setup": "node scripts/setup-test-data.js",
+    "cleanup": "node scripts/cleanup-test-data.js"
+  },
+  "keywords": [
+    "e2e",
+    "testing",
+    "puppeteer",
+    "vue",
+    "recipes"
+  ],
+  "author": "Alchemorsel Team",
+  "license": "MIT",
+  "devDependencies": {
+    "c8": "^8.0.1",
+    "puppeteer": "^24.10.1"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  }
+}

@@ -1,13 +1,19 @@
 services:
   frontend:
+    image: alchemorsel/frontend:v1.2.0
     build:
       context: ./frontend
       dockerfile: Dockerfile
       target: development
+      labels:
+        - "version=v1.2.0"
+        - "component=frontend"
+        - "maintainer=alchemorsel-team"
     ports:
       - "5173:5173"
     environment:
       - NODE_ENV=development
+      - VITE_BACKEND_URL=http://backend:8080
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -15,9 +21,14 @@ services:
       - backend
 
   backend:
+    image: alchemorsel/backend:v1.2.0
     build:
       context: ./backend
       dockerfile: Dockerfile
+      labels:
+        - "version=v1.2.0"
+        - "component=backend"
+        - "maintainer=alchemorsel-team"
     ports:
       - "8080:8080"
     environment:
@@ -26,17 +37,33 @@ services:
       - REDIS_HOST=redis
       - DEEPSEEK_API_KEY_FILE=/run/secrets/deepseek_api_key
       - OPENAI_API_KEY_FILE=/run/secrets/openai_api_key
+      - DATABASE_URL=postgres://postgres:your_secure_password_here@postgres:5432/alchemorsel?sslmode=disable
     secrets:
       - db_password
       - db_user
       - db_name
+      - db_host
+      - db_port
+      - db_ssl_mode
       - redis_url
+      - redis_password
+      - redis_host
+      - redis_port
       - aws_access_key_id
       - aws_secret_access_key
       - aws_region
       - s3_bucket_name
       - deepseek_api_key
       - openai_api_key
+      - jwt_secret
+      - server_port
+      - server_host
+      - smtp_host
+      - smtp_port
+      - smtp_username
+      - smtp_password
+      - email_from
+      - email_from_name
     depends_on:
       postgres:
         condition: service_healthy
@@ -77,8 +104,20 @@ secrets:
     file: ./secrets/db_user.txt
   db_name:
     file: ./secrets/db_name.txt
+  db_host:
+    file: ./secrets/db_host.txt
+  db_port:
+    file: ./secrets/db_port.txt
+  db_ssl_mode:
+    file: ./secrets/db_ssl_mode.txt
   redis_url:
     file: ./secrets/redis_url.txt
+  redis_password:
+    file: ./secrets/redis_password.txt
+  redis_host:
+    file: ./secrets/redis_host.txt
+  redis_port:
+    file: ./secrets/redis_port.txt
   aws_access_key_id:
     file: ./secrets/aws_access_key_id.txt
   aws_secret_access_key:
@@ -90,4 +129,22 @@ secrets:
   deepseek_api_key:
     file: ./secrets/deepseek_api_key.txt
   openai_api_key:
-    file: ./secrets/openai_api_key.txt 
+    file: ./secrets/openai_api_key.txt
+  jwt_secret:
+    file: ./secrets/jwt_secret.txt
+  server_port:
+    file: ./secrets/server_port
+  server_host:
+    file: ./secrets/server_host
+  smtp_host:
+    file: ./secrets/smtp_host.txt
+  smtp_port:
+    file: ./secrets/smtp_port.txt
+  smtp_username:
+    file: ./secrets/smtp_username.txt
+  smtp_password:
+    file: ./secrets/smtp_password.txt
+  email_from:
+    file: ./secrets/email_from.txt
+  email_from_name:
+    file: ./secrets/email_from_name.txt 
