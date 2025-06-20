@@ -27,8 +27,8 @@ aws ec2 authorize-security-group-ingress \
     --group-name alchemorsel-sg \
     --protocol tcp \
     --port 22 \
-    --cidr 0.0.0.0/0 \
-    --region us-west-2  # SSH access
+    --cidr YOUR_IP/32 \
+    --region us-west-2  # SSH access (replace YOUR_IP with your actual IP)
 
 aws ec2 authorize-security-group-ingress \
     --group-name alchemorsel-sg \
@@ -244,12 +244,12 @@ aws ec2 authorize-security-group-ingress \
     --cidr $YOUR_IP/32 \
     --region us-west-2
 
-# Revoke open SSH access
+# Revoke open SSH access (if previously configured)
 aws ec2 revoke-security-group-ingress \
     --group-name alchemorsel-sg \
     --protocol tcp \
     --port 22 \
-    --cidr 0.0.0.0/0 \
+    --cidr PREVIOUS_OPEN_ACCESS/0 \
     --region us-west-2
 ```
 
