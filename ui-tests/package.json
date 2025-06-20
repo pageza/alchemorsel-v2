@@ -25,7 +25,7 @@
   "author": "Alchemorsel Team",
   "license": "MIT",
   "devDependencies": {
-    "c8": "^8.0.1",
+    "c8": "^10.1.3",
     "puppeteer": "^24.10.2"
   },
   "dependencies": {
