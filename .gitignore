@@ -18,3 +18,7 @@ node_modules
 # E2E Tests environment files
 ui-tests/.env
 ui-tests/.env.local
+
+# AWS deployment documentation (contains security group examples)
+docs/AWS_DEPLOYMENT.md
+docs/planning/AWS_MCP_DEPLOYMENT.md
