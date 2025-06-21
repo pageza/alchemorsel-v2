@@ -1,0 +1,121 @@
+{
+  "testSuite": "Comprehensive Live Site E2E Tests",
+  "timestamp": "2025-06-21T02:08:16.946Z",
+  "baseUrl": "http://localhost:8175",
+  "testUser": {
+    "email": "puppeteer.test@alchemorsel.com",
+    "username": "puppeteer-tester",
+    "isEmailVerified": true
+  },
+  "summary": {
+    "total": 10,
+    "passed": 3,
+    "failed": 7,
+    "successRate": "30%"
+  },
+  "results": [
+    {
+      "testName": "Landing Page Access",
+      "passed": false,
+      "screenshot": {
+        "filename": "2025-06-21T02-07-46-285Z-landing-page.png",
+        "filepath": "screenshots/comprehensive-tests/2025-06-21T02-07-46-285Z-landing-page.png",
+        "description": "Landing page load"
+      },
+      "timestamp": "2025-06-21T02:07:46.473Z"
+    },
+    {
+      "testName": "User Login Flow",
+      "passed": false,
+      "screenshot": {
+        "filename": "2025-06-21T02-08-00-486Z-post-login.png",
+        "filepath": "screenshots/comprehensive-tests/2025-06-21T02-08-00-486Z-post-login.png",
+        "description": "After login submission"
+      },
+      "timestamp": "2025-06-21T02:08:00.551Z"
+    },
+    {
+      "testName": "Dashboard Access",
+      "passed": false,
+      "screenshot": {
+        "filename": "2025-06-21T02-08-02-554Z-dashboard-page.png",
+        "filepath": "screenshots/comprehensive-tests/2025-06-21T02-08-02-554Z-dashboard-page.png",
+        "description": "Dashboard loaded"
+      },
+      "timestamp": "2025-06-21T02:08:02.745Z"
+    },
+    {
+      "testName": "Profile Management",
+      "passed": false,
+      "screenshot": {
+        "filename": "2025-06-21T02-08-04-942Z-profile-error.png",
+        "filepath": "screenshots/comprehensive-tests/2025-06-21T02-08-04-942Z-profile-error.png",
+        "description": "Profile management error"
+      },
+      "error": "SyntaxError: Failed to execute 'querySelector' on 'Document': 'button:has-text(\"Edit\")' is not a valid selector.",
+      "timestamp": "2025-06-21T02:08:05.128Z"
+    },
+    {
+      "testName": "Recipe Generation",
+      "passed": false,
+      "screenshot": {
+        "filename": "2025-06-21T02-08-07-334Z-recipe-gen-error.png",
+        "filepath": "screenshots/comprehensive-tests/2025-06-21T02-08-07-334Z-recipe-gen-error.png",
+        "description": "Recipe generation error"
+      },
+      "error": "SyntaxError: Failed to execute 'querySelector' on 'Document': 'button:has-text(\"Generate\")' is not a valid selector.",
+      "timestamp": "2025-06-21T02:08:07.524Z"
+    },
+    {
+      "testName": "Recipe Browsing",
+      "passed": true,
+      "screenshot": {
+        "filename": "2025-06-21T02-08-08-425Z-recipe-browsing.png",
+        "filepath": "screenshots/comprehensive-tests/2025-06-21T02-08-08-425Z-recipe-browsing.png",
+        "description": "Recipe browsing page"
+      },
+      "timestamp": "2025-06-21T02:08:08.520Z"
+    },
+    {
+      "testName": "Recipe Favorites",
+      "passed": true,
+      "screenshot": {
+        "filename": "2025-06-21T02-08-10-525Z-favorites-page.png",
+        "filepath": "screenshots/comprehensive-tests/2025-06-21T02-08-10-525Z-favorites-page.png",
+        "description": "Favorites page"
+      },
+      "timestamp": "2025-06-21T02:08:10.712Z"
+    },
+    {
+      "testName": "Feedback System",
+      "passed": false,
+      "screenshot": {
+        "filename": "2025-06-21T02-08-12-311Z-feedback-error.png",
+        "filepath": "screenshots/comprehensive-tests/2025-06-21T02-08-12-311Z-feedback-error.png",
+        "description": "Feedback system error"
+      },
+      "error": "SyntaxError: Failed to execute 'querySelector' on 'Document': 'button:has-text(\"Feedback\"), [data-testid*=\"feedback\"]' is not a valid selector.",
+      "timestamp": "2025-06-21T02:08:12.510Z"
+    },
+    {
+      "testName": "Email Verification Status",
+      "passed": true,
+      "screenshot": {
+        "filename": "2025-06-21T02-08-14-513Z-email-verification-check.png",
+        "filepath": "screenshots/comprehensive-tests/2025-06-21T02-08-14-513Z-email-verification-check.png",
+        "description": "Checking email verification status"
+      },
+      "timestamp": "2025-06-21T02:08:14.719Z"
+    },
+    {
+      "testName": "Admin Access",
+      "passed": false,
+      "screenshot": {
+        "filename": "2025-06-21T02-08-16-731Z-admin-access.png",
+        "filepath": "screenshots/comprehensive-tests/2025-06-21T02-08-16-731Z-admin-access.png",
+        "description": "Admin access attempt"
+      },
+      "timestamp": "2025-06-21T02:08:16.946Z"
+    }
+  ]
+}

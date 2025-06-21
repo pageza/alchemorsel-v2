@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alchemorsel - Desktop Wireframe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #ddd5c8 !important;
+            color: #5a4d3a;
+        }
+        
+        .wireframe-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .screen {
+            background: #ffffff;
+            border: 2px solid #b5a082;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(196, 135, 107, 0.15);
+        }
+        
+        .screen-title {
+            background: #5a4d3a;
+            color: #f0ede7;
+            padding: 20px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .navbar {
+            background: #a8936d;
+            color: white;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+        
+        .nav-brand {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            opacity: 0.9;
+        }
+        
+        .nav-links a:hover {
+            opacity: 1;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #ffffff;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #c4876b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 80px 20px;
+            background: linear-gradient(135deg, #c4876b 0%, #a8936d 100%);
+            color: white;
+        }
+        
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .hero p {
+            font-size: 20px;
+            margin-bottom: 30px;
+            opacity: 0.95;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #7a8c6f;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .btn-primary {
+            background: #c4876b;
+        }
+        
+        .btn-primary:hover {
+            background: #b67759;
+        }
+        
+        .btn-secondary {
+            background: #b5a082;
+        }
+        
+        .btn-secondary:hover {
+            background: #a39070;
+        }
+        
+        .btn-success {
+            background: #7a8c6f;
+        }
+        
+        .btn-success:hover {
+            background: #6a7c5f;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #5a4d3a;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #b5a082;
+            border-radius: 4px;
+            font-size: 16px;
+            background: #ffffff;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #7a8c6f;
+            background: #ffffff;
+        }
+        
+        .auth-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 40px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(90, 77, 58, 0.1);
+        }
+        
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .recipe-card {
+            border: 1px solid #b5a082;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s;
+            background: #ffffff;
+        }
+        
+        .recipe-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(196, 135, 107, 0.2);
+        }
+        
+        .recipe-image {
+            width: 100%;
+            height: 200px;
+            background: #ddd5c8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a8936d;
+        }
+        
+        .recipe-content {
+            padding: 20px;
+        }
+        
+        .recipe-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #5a4d3a;
+        }
+        
+        .recipe-meta {
+            display: flex;
+            gap: 15px;
+            color: #a8936d;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .dietary-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .tag {
+            background: rgba(122, 140, 111, 0.1);
+            color: #7a8c6f;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            border: 1px solid rgba(122, 140, 111, 0.2);
+        }
+        
+        .search-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 1px solid #b5a082;
+            border-radius: 5px;
+            font-size: 16px;
+            background: #ffffff;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #7a8c6f;
+        }
+        
+        .filter-section {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #5a4d3a;
+        }
+        
+        .recipe-detail {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .recipe-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .recipe-main-image {
+            width: 100%;
+            height: 400px;
+            background: #ddd5c8;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a8936d;
+            border: 1px solid #b5a082;
+        }
+        
+        .recipe-info h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #5a4d3a;
+        }
+        
+        .recipe-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            background: rgba(196, 135, 107, 0.05);
+            border-radius: 5px;
+            border: 1px solid rgba(196, 135, 107, 0.2);
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #c4876b;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #5a4d3a;
+        }
+        
+        .recipe-sections {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 40px;
+        }
+        
+        .ingredients-section {
+            background: #ddd5c8;
+            padding: 30px;
+            border-radius: 8px;
+            border: 1px solid #b5a082;
+        }
+        
+        .ingredients-section h2 {
+            color: #5a4d3a;
+            margin-bottom: 20px;
+        }
+        
+        .ingredient-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(181, 160, 130, 0.3);
+            color: #5a4d3a;
+        }
+        
+        .instructions-section h2 {
+            color: #5a4d3a;
+            margin-bottom: 20px;
+        }
+        
+        .instructions-section ol {
+            padding-left: 20px;
+        }
+        
+        .instructions-section li {
+            margin-bottom: 20px;
+            line-height: 1.6;
+            color: #5a4d3a;
+        }
+        
+        .profile-section {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .profile-header {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+        
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #c4876b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+        }
+        
+        .profile-info h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #5a4d3a;
+        }
+        
+        .form-section {
+            background: #ddd5c8;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border: 1px solid #b5a082;
+        }
+        
+        .form-section h3 {
+            margin-bottom: 20px;
+            color: #5a4d3a;
+        }
+        
+        .preferences-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .generator-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .generator-form {
+            background: #ddd5c8;
+            padding: 40px;
+            border-radius: 8px;
+            border: 1px solid #b5a082;
+        }
+        
+        .generator-form h3 {
+            color: #5a4d3a;
+            margin-bottom: 20px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #b5a082;
+            border-radius: 4px;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 100px;
+            background: #ffffff;
+        }
+        
+        .textarea:focus {
+            outline: none;
+            border-color: #7a8c6f;
+        }
+        
+        .generated-recipe {
+            margin-top: 40px;
+            padding: 30px;
+            background: #ffffff;
+            border: 2px solid #7a8c6f;
+            border-radius: 8px;
+        }
+        
+        .generated-recipe h2, .generated-recipe h3 {
+            color: #5a4d3a;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .loading-state {
+            text-align: center;
+            padding: 60px;
+            color: #a8936d;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #ddd5c8;
+            border-top: 4px solid #a8936d;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid #b5a082;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            font-size: 36px;
+            color: #c4876b;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card p {
+            color: #5a4d3a;
+        }
+        
+        .favorites-section {
+            margin-top: 40px;
+        }
+        
+        .favorites-section h2 {
+            color: #5a4d3a;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #a8936d;
+        }
+        
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #5a4d3a;
+        }
+        
+        .nutritional-info {
+            background: #ddd5c8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            border: 1px solid #b5a082;
+        }
+        
+        .nutritional-info h3 {
+            color: #5a4d3a;
+        }
+        
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .nutrition-item {
+            text-align: center;
+        }
+        
+        .nutrition-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #c4876b;
+        }
+        
+        .nutrition-label {
+            font-size: 12px;
+            color: #6b5d4a;
+        }
+        
+        h1, h2 {
+            color: #5a4d3a;
+        }
+        
+        p {
+            color: #5a4d3a;
+        }
+        
+        a {
+            color: #a8936d;
+        }
+        
+        a:hover {
+            color: #967a5a;
+        }
+    </style>
+</head>
+<body>
+    <!-- Screen 1: Landing Page (Not Authenticated) -->
+    <div class="wireframe-container">
+        <div class="screen">
+            <div class="screen-title">1. Landing Page (Not Authenticated)</div>
+            <div class="navbar">
+                <div class="nav-brand">🏺 Alchemorsel</div>
+                <ul class="nav-links">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Browse Recipes</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Login</a></li>
+                    <li><a href="#">Sign Up</a></li>
+                </ul>
+            </div>
+            <div class="hero">
+                <h1>AI-Powered Recipe Magic</h1>
+                <p>Create personalized recipes tailored to your dietary preferences and allergies</p>
+                <a href="#" class="btn btn-primary">Get Started Free</a>
+            </div>
+            <div class="content">
+                <h2 style="text-align: center; margin-bottom: 30px;">Featured Recipes</h2>
+                <div class="recipe-grid">
+                    <div class="recipe-card">
+                        <div class="recipe-image">[Recipe Image]</div>
+                        <div class="recipe-content">
+                            <div class="recipe-title">Mediterranean Quinoa Bowl</div>
+                            <div class="recipe-meta">
+                                <span>⏱ 30 min</span>
+                                <span>👥 4 servings</span>
+                            </div>
+                            <div class="dietary-tags">
+                                <span class="tag">Vegan</span>
+                                <span class="tag">Gluten-Free</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="recipe-card">
+                        <div class="recipe-image">[Recipe Image]</div>
+                        <div class="recipe-content">
+                            <div class="recipe-title">Thai Coconut Curry</div>
+                            <div class="recipe-meta">
+                                <span>⏱ 45 min</span>
+                                <span>👥 6 servings</span>
+                            </div>
+                            <div class="dietary-tags">
+                                <span class="tag">Vegetarian</span>
+                                <span class="tag">Dairy-Free</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="recipe-card">
+                        <div class="recipe-image">[Recipe Image]</div>
+                        <div class="recipe-content">
+                            <div class="recipe-title">Zucchini Pasta Primavera</div>
+                            <div class="recipe-meta">
+                                <span>⏱ 25 min</span>
+                                <span>👥 2 servings</span>
+                            </div>
+                            <div class="dietary-tags">
+                                <span class="tag">Keto</span>
+                                <span class="tag">Low-Carb</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 2: Registration Page -->
+        <div class="screen">
+            <div class="screen-title">2. Registration Page (/auth/register)</div>
+            <div class="navbar">
+                <div class="nav-brand">🏺 Alchemorsel</div>
+                <ul class="nav-links">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Browse Recipes</a></li>
+                    <li><a href="#">Login</a></li>
+                </ul>
+            </div>
+            <div class="content">
+                <div class="auth-container">
+                    <h2 style="text-align: center; margin-bottom: 30px;">Create Your Account</h2>
+                    <form>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" class="form-control" placeholder="your@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" class="form-control" placeholder="johndoe">
+                        </div>
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" class="form-control" placeholder="John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" class="form-control" placeholder="••••••••">
+                            <small style="color: #a8936d;">Min 8 chars, 1 uppercase, 1 number, 1 special char</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Dietary Preferences</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox"> Vegan
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox"> Vegetarian
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox"> Gluten-Free
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox"> Dairy-Free
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox"> Keto
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox"> Paleo
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Allergies</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox"> Peanuts
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox"> Tree Nuts
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox"> Shellfish
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox"> Soy
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox"> Eggs
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox"> Dairy
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Up</button>
+                        <p style="text-align: center; margin-top: 20px;">
+                            Already have an account? <a href="#">Login</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 3: Login Page -->
+        <div class="screen">
+            <div class="screen-title">3. Login Page (/auth/login)</div>
+            <div class="navbar">
+                <div class="nav-brand">🏺 Alchemorsel</div>
+                <ul class="nav-links">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Browse Recipes</a></li>
+                    <li><a href="#">Sign Up</a></li>
+                </ul>
+            </div>
+            <div class="content">
+                <div class="auth-container">
+                    <h2 style="text-align: center; margin-bottom: 30px;">Welcome Back</h2>
+                    <form>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" class="form-control" placeholder="your@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" class="form-control" placeholder="••••••••">
+                        </div>
+                        <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
+                            <label class="checkbox-label">
+                                <input type="checkbox"> Remember me
+                            </label>
+                            <a href="#">Forgot password?</a>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+                        <p style="text-align: center; margin-top: 20px;">
+                            Don't have an account? <a href="#">Sign up</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 4: Dashboard (Authenticated) -->
+        <div class="screen">
+            <div class="screen-title">4. Dashboard (/dashboard)</div>
+            <div class="navbar">
+                <div class="nav-brand">🏺 Alchemorsel</div>
+                <ul class="nav-links">
+                    <li><a href="#">Dashboard</a></li>
+                    <li><a href="#">Browse Recipes</a></li>
+                    <li><a href="#">Generate Recipe</a></li>
+                    <li><a href="#">My Favorites</a></li>
+                </ul>
+                <div class="user-menu">
+                    <span>Welcome, John</span>
+                    <div class="avatar">JD</div>
+                </div>
+            </div>
+            <div class="content">
+                <h1>Welcome back, John!</h1>
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <h3>12</h3>
+                        <p>Recipes Generated</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>24</h3>
+                        <p>Favorites</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>3</h3>
+                        <p>This Week</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Vegan</h3>
+                        <p>Primary Diet</p>
+                    </div>
+                </div>
+                
+                <div class="favorites-section">
+                    <h2>Recent Favorites</h2>
+                    <div class="recipe-grid">
+                        <div class="recipe-card">
+                            <div class="recipe-image">[Recipe Image]</div>
+                            <div class="recipe-content">
+                                <div class="recipe-title">Spicy Tofu Stir-Fry</div>
+                                <div class="recipe-meta">
+                                    <span>⏱ 25 min</span>
+                                    <span>👥 4 servings</span>
+                                    <span>❤️ Favorited</span>
+                                </div>
+                                <div class="dietary-tags">
+                                    <span class="tag">Vegan</span>
+                                    <span class="tag">Gluten-Free</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="recipe-card">
+                            <div class="recipe-image">[Recipe Image]</div>
+                            <div class="recipe-content">
+                                <div class="recipe-title">Lentil Buddha Bowl</div>
+                                <div class="recipe-meta">
+                                    <span>⏱ 35 min</span>
+                                    <span>👥 2 servings</span>
+                                    <span>❤️ Favorited</span>
+                                </div>
+                                <div class="dietary-tags">
+                                    <span class="tag">Vegan</span>
+                                    <span class="tag">High-Protein</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 40px;">
+                    <a href="#" class="btn btn-primary">Generate New Recipe</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 5: Recipe Search/Browse -->
+        <div class="screen">
+            <div class="screen-title">5. Recipe Search (/recipes)</div>
+            <div class="navbar">
+                <div class="nav-brand">🏺 Alchemorsel</div>
+                <ul class="nav-links">
+                    <li><a href="#">Dashboard</a></li>
+                    <li><a href="#" style="opacity: 1;">Browse Recipes</a></li>
+                    <li><a href="#">Generate Recipe</a></li>
+                    <li><a href="#">My Favorites</a></li>
+                </ul>
+                <div class="user-menu">
+                    <span>John Doe</span>
+                    <div class="avatar">JD</div>
+                </div>
+            </div>
+            <div class="content">
+                <h1>Browse Recipes</h1>
+                
+                <div class="search-bar">
+                    <input type="text" class="search-input" placeholder="Search recipes... (e.g., pasta, italian, tomato)">
+                    <button class="btn btn-primary">Search</button>
+                </div>
+                
+                <div class="filter-section">
+                    <div class="filter-group">
+                        <label>Category:</label>
+                        <select class="form-control" style="width: 200px;">
+                            <option>All Categories</option>
+                            <option>Breakfast</option>
+                            <option>Lunch</option>
+                            <option>Dinner</option>
+                            <option>Dessert</option>
+                            <option>Snack</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Dietary:</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox"> Vegan
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox"> Vegetarian
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox"> Gluten-Free
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Exclude:</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox"> Nuts
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox"> Dairy
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox"> Soy
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="recipe-grid">
+                    <div class="recipe-card">
+                        <div class="recipe-image">[Recipe Image]</div>
+                        <div class="recipe-content">
+                            <div class="recipe-title">Mediterranean Chickpea Salad</div>
+                            <div class="recipe-meta">
+                                <span>⏱ 15 min</span>
+                                <span>👥 4 servings</span>
+                                <span>⭐ 4.8</span>
+                            </div>
+                            <div class="dietary-tags">
+                                <span class="tag">Vegan</span>
+                                <span class="tag">Mediterranean</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="recipe-card">
+                        <div class="recipe-image">[Recipe Image]</div>
+                        <div class="recipe-content">
+                            <div class="recipe-title">Tuscan White Bean Soup</div>
+                            <div class="recipe-meta">
+                                <span>⏱ 40 min</span>
+                                <span>👥 6 servings</span>
+                                <span>⭐ 4.6</span>
+                            </div>
+                            <div class="dietary-tags">
+                                <span class="tag">Vegetarian</span>
+                                <span class="tag">Comfort</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="recipe-card">
+                        <div class="recipe-image">[Recipe Image]</div>
+                        <div class="recipe-content">
+                            <div class="recipe-title">Grilled Halloumi & Vegetables</div>
+                            <div class="recipe-meta">
+                                <span>⏱ 25 min</span>
+                                <span>👥 2 servings</span>
+                                <span>⭐ 4.9</span>
+                            </div>
+                            <div class="dietary-tags">
+                                <span class="tag">Vegetarian</span>
+                                <span class="tag">Grilled</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="recipe-card">
+                        <div class="recipe-image">[Recipe Image]</div>
+                        <div class="recipe-content">
+                            <div class="recipe-title">Lemon Herb Olive Oil Pasta</div>
+                            <div class="recipe-meta">
+                                <span>⏱ 20 min</span>
+                                <span>👥 4 servings</span>
+                                <span>⭐ 4.7</span>
+                            </div>
+                            <div class="dietary-tags">
+                                <span class="tag">Vegan</span>
+                                <span class="tag">Quick</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 40px;">
+                    <button class="btn btn-secondary">Load More Recipes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

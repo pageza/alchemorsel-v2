@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [ main, master ]
   push:
-    branches: [ develop, feature/* ]
+    branches: [ develop, developing, feature/* ]
 
 env:
   GO_VERSION: '1.23'
@@ -25,7 +25,9 @@ jobs:
     - name: Check commit messages
       run: |
         # Ensure commit messages follow conventional commits
-        git log --oneline origin/master..HEAD | while read commit; do
+        # Determine the default branch
+        DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+        git log --oneline "origin/${DEFAULT_BRANCH}"..HEAD | while read commit; do
           if ! echo "$commit" | grep -qE "^[a-f0-9]+ (feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .+"; then
             echo "❌ Invalid commit message format: $commit"
             echo "Expected: type(scope): description"
@@ -43,7 +45,7 @@ jobs:
       uses: trufflesecurity/trufflehog@main
       with:
         path: ./
-        base: master
+        base: ${{ github.event.repository.default_branch }}
         head: HEAD
 
   # Backend Quality Checks
