@@ -1,0 +1,373 @@
+name: Strict CI Pipeline
+
+on:
+  pull_request:
+    branches: [ main, master ]
+  push:
+    branches: [ develop, feature/* ]
+
+env:
+  GO_VERSION: '1.23'
+  NODE_VERSION: '20.x'
+
+jobs:
+  # Quality Gates - Must pass before any other jobs
+  quality-gates:
+    name: Quality Gates
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Needed for SonarCloud
+
+    - name: Check commit messages
+      run: |
+        # Ensure commit messages follow conventional commits
+        git log --oneline origin/master..HEAD | while read commit; do
+          if ! echo "$commit" | grep -qE "^[a-f0-9]+ (feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .+"; then
+            echo "❌ Invalid commit message format: $commit"
+            echo "Expected: type(scope): description"
+            echo "Examples: feat(auth): add login validation"
+            echo "          fix(api): resolve race condition"
+            exit 1
+          fi
+        done
+        echo "✅ All commit messages follow conventional format"
+
+    - name: Check version consistency
+      run: ./scripts/check-versions.sh
+
+    - name: Detect secrets
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: master
+        head: HEAD
+
+  # Backend Quality Checks
+  backend-quality:
+    name: Backend Quality
+    runs-on: ubuntu-latest
+    needs: quality-gates
+    
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: alchemorsel_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ env.GO_VERSION }}
+        cache-dependency-path: backend/go.sum
+
+    - name: Install dependencies
+      working-directory: ./backend
+      run: |
+        go mod download
+        go mod verify
+
+    - name: Go vulnerability check
+      working-directory: ./backend
+      run: |
+        go install golang.org/x/vuln/cmd/govulncheck@latest
+        govulncheck ./...
+
+    - name: Go linting (strict)
+      working-directory: ./backend
+      run: |
+        go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+        golangci-lint run --timeout=5m
+
+    - name: Go tests with coverage
+      working-directory: ./backend
+      env:
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_USER: postgres
+        DB_PASSWORD: postgres
+        DB_NAME: alchemorsel_test
+        DB_SSL_MODE: disable
+        REDIS_HOST: localhost
+        REDIS_PORT: 6379
+        JWT_SECRET: test-jwt-secret
+        SERVER_PORT: 8080
+        SERVER_HOST: localhost
+      run: |
+        go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+        
+        # Check coverage threshold (80%)
+        COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+        if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+          echo "❌ Coverage $COVERAGE% is below 80% threshold"
+          exit 1
+        fi
+        echo "✅ Coverage: $COVERAGE%"
+
+    - name: Go security scan
+      working-directory: ./backend
+      run: |
+        go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
+        gosec -fmt json -out gosec-report.json ./...
+
+    # Coverage tracked locally - Codecov removed per user preference
+
+  # Frontend Quality Checks
+  frontend-quality:
+    name: Frontend Quality
+    runs-on: ubuntu-latest
+    needs: quality-gates
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: Audit dependencies
+      working-directory: ./frontend
+      run: |
+        npm audit --audit-level=moderate
+        npm outdated || true
+
+    - name: TypeScript strict check
+      working-directory: ./frontend
+      run: npm run type-check
+
+    - name: ESLint (strict)
+      working-directory: ./frontend
+      run: npm run lint
+
+    - name: Prettier check
+      working-directory: ./frontend
+      run: npx prettier --check "src/**/*.{ts,tsx,vue,js,jsx}"
+
+    - name: Frontend tests with coverage
+      working-directory: ./frontend
+      run: |
+        npm run test:unit -- --coverage --coverage.threshold.global.lines=80
+        
+    - name: Build check
+      working-directory: ./frontend
+      run: npm run build
+
+    - name: Bundle size check
+      working-directory: ./frontend
+      run: |
+        # Check if bundle size is reasonable (< 2MB)
+        BUNDLE_SIZE=$(du -sb dist/ | cut -f1)
+        MAX_SIZE=2097152  # 2MB in bytes
+        if [ $BUNDLE_SIZE -gt $MAX_SIZE ]; then
+          echo "❌ Bundle size $(($BUNDLE_SIZE / 1024 / 1024))MB exceeds 2MB limit"
+          exit 1
+        fi
+        echo "✅ Bundle size: $(($BUNDLE_SIZE / 1024 / 1024))MB"
+
+    # Coverage tracked locally - Codecov removed per user preference
+
+  # SonarCloud Analysis
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+    needs: [backend-quality, frontend-quality]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Download backend coverage
+      uses: actions/download-artifact@v4
+      with:
+        name: backend-coverage
+        path: ./backend/
+
+    - name: Download frontend coverage
+      uses: actions/download-artifact@v4
+      with:
+        name: frontend-coverage
+        path: ./frontend/coverage/
+
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # Security Scans
+  security-scans:
+    name: Security Scans
+    runs-on: ubuntu-latest
+    needs: quality-gates
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+    - name: Docker security scan
+      run: |
+        docker run --rm -v "$PWD":/workdir -w /workdir \
+          hadolint/hadolint:latest hadolint backend/Dockerfile frontend/Dockerfile
+
+  # Integration Tests
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [backend-quality, frontend-quality]
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: alchemorsel_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        cd backend && go mod download
+        cd ../frontend && npm ci
+        cd ../ui-tests && npm ci
+
+    - name: Run integration tests
+      working-directory: ./backend
+      env:
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_USER: postgres
+        DB_PASSWORD: postgres
+        DB_NAME: alchemorsel_test
+        DB_SSL_MODE: disable
+        REDIS_HOST: localhost
+        REDIS_PORT: 6379
+        JWT_SECRET: test-jwt-secret
+      run: |
+        go test -tags=integration -v ./internal/integration/...
+
+  # Final Quality Gate
+  quality-gate-final:
+    name: Final Quality Gate
+    runs-on: ubuntu-latest
+    needs: [backend-quality, frontend-quality, sonarcloud, security-scans, integration-tests]
+    if: always()
+
+    steps:
+    - name: Check all jobs passed
+      run: |
+        if [[ "${{ needs.backend-quality.result }}" != "success" ]]; then
+          echo "❌ Backend quality checks failed"
+          exit 1
+        fi
+        if [[ "${{ needs.frontend-quality.result }}" != "success" ]]; then
+          echo "❌ Frontend quality checks failed"
+          exit 1
+        fi
+        if [[ "${{ needs.sonarcloud.result }}" != "success" ]]; then
+          echo "❌ SonarCloud analysis failed"
+          exit 1
+        fi
+        if [[ "${{ needs.security-scans.result }}" != "success" ]]; then
+          echo "❌ Security scans failed"
+          exit 1
+        fi
+        if [[ "${{ needs.integration-tests.result }}" != "success" ]]; then
+          echo "❌ Integration tests failed"
+          exit 1
+        fi
+        echo "✅ All quality gates passed!"
+
+    - name: Update PR status
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.repos.createCommitStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            sha: context.sha,
+            state: 'success',
+            target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+            description: 'All quality gates passed',
+            context: 'strict-ci/quality-gates'
+          });

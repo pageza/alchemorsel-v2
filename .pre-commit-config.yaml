@@ -1,0 +1,107 @@
+# Pre-commit hooks for Alchemorsel
+# Ensures code quality before commits reach CI/CD pipeline
+
+repos:
+  # General checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-json
+      - id: pretty-format-json
+        args: ['--autofix', '--indent=2']
+      - id: detect-private-key
+      - id: no-commit-to-branch
+        args: ['--branch', 'master', '--branch', 'main']
+
+  # Go specific hooks
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v1.55.2
+    hooks:
+      - id: golangci-lint
+        args: ['--config=backend/.golangci.yml']
+        files: '^backend/.*\.go$'
+
+  # Go formatting
+  - repo: local
+    hooks:
+      - id: go-fmt
+        name: go fmt
+        entry: bash -c 'cd backend && go fmt ./...'
+        language: system
+        files: '^backend/.*\.go$'
+        pass_filenames: false
+
+      - id: go-mod-tidy
+        name: go mod tidy
+        entry: bash -c 'cd backend && go mod tidy'
+        language: system
+        files: '^backend/go\.(mod|sum)$'
+        pass_filenames: false
+
+      - id: go-test
+        name: go test
+        entry: bash -c 'cd backend && go test -short ./...'
+        language: system
+        files: '^backend/.*\.go$'
+        pass_filenames: false
+
+  # Frontend hooks
+  - repo: local
+    hooks:
+      - id: frontend-lint
+        name: ESLint
+        entry: bash -c 'cd frontend && npm run lint'
+        language: system
+        files: '^frontend/.*\.(ts|tsx|js|jsx|vue)$'
+        pass_filenames: false
+
+      - id: frontend-type-check
+        name: TypeScript Check
+        entry: bash -c 'cd frontend && npm run type-check'
+        language: system
+        files: '^frontend/.*\.(ts|tsx|vue)$'
+        pass_filenames: false
+
+      - id: frontend-test
+        name: Frontend Tests
+        entry: bash -c 'cd frontend && npm run test:unit -- --run'
+        language: system
+        files: '^frontend/src/.*\.(ts|tsx|js|jsx|vue)$'
+        pass_filenames: false
+
+  # Security scanning
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+
+  # Docker
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        args: ['--ignore', 'DL3008', '--ignore', 'DL3009']
+
+  # Markdown
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.37.0
+    hooks:
+      - id: markdownlint
+        args: ['--fix']
+
+  # Version consistency check
+  - repo: local
+    hooks:
+      - id: version-check
+        name: Version Consistency
+        entry: ./scripts/check-versions.sh
+        language: script
+        pass_filenames: false
