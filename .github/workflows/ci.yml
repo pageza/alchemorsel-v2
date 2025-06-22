@@ -334,6 +334,7 @@ jobs:
         DB_PASSWORD: postgres
         DB_NAME: alchemorsel_test
         DB_SSL_MODE: disable
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/alchemorsel_test?sslmode=disable
         REDIS_HOST: localhost
         REDIS_PORT: 6379
         JWT_SECRET: test-jwt-secret-for-ci-pipeline
