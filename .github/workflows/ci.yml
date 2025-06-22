@@ -140,6 +140,9 @@ jobs:
     - name: Run backend tests (fast)
       working-directory: ./backend
       env:
+        # CI environment flag
+        CI: true
+        
         # Database configuration
         DB_HOST: localhost
         DB_PORT: 5432
@@ -159,6 +162,12 @@ jobs:
         # Server configuration
         SERVER_PORT: 8080
         SERVER_HOST: localhost
+        
+        # CI-specific test variables (backend expects TEST_ prefix in CI)
+        TEST_DB_PASSWORD: postgres
+        TEST_JWT_SECRET: test-jwt-secret-for-ci-pipeline
+        TEST_REDIS_PASSWORD: ""
+        TEST_REDIS_URL: redis://localhost:6379
         
         # API Keys (from GitHub Secrets)
         DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
@@ -340,6 +349,8 @@ jobs:
     - name: Start backend server
       working-directory: ./backend
       env:
+        # CI-specific environment variables (backend expects TEST_ prefix in CI)
+        CI: true
         DB_HOST: localhost
         DB_PORT: 5432
         DB_USER: postgres
@@ -352,6 +363,12 @@ jobs:
         JWT_SECRET: test-jwt-secret-for-ci-pipeline
         SERVER_PORT: 8080
         SERVER_HOST: localhost
+        # CI-specific test variables
+        TEST_DB_PASSWORD: postgres
+        TEST_JWT_SECRET: test-jwt-secret-for-ci-pipeline
+        TEST_REDIS_PASSWORD: ""
+        TEST_REDIS_URL: redis://localhost:6379
+        # API Keys
         DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
