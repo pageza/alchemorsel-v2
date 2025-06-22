@@ -39,7 +39,9 @@ jobs:
         echo "✅ All commit messages follow conventional format"
 
     - name: Check version consistency
-      run: ./scripts/check-versions.sh
+      run: |
+        chmod +x ./scripts/check-versions.sh
+        ./scripts/check-versions.sh
 
     - name: Detect secrets
       uses: trufflesecurity/trufflehog@main
