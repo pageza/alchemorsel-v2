@@ -1,10 +1,17 @@
-name: Strict CI Pipeline
+name: Quality Gates Pipeline
+
+# Purpose: Comprehensive quality gates for production readiness
+# - Coverage thresholds and quality metrics
+# - Security vulnerability scanning
+# - Code quality analysis (SonarCloud)
+# - Runs on PRs to main/master for production quality assurance
+# - Basic tests handled by fast-ci.yml
 
 on:
   pull_request:
     branches: [ main, master ]
   push:
-    branches: [ develop, developing, feature/* ]
+    branches: [ main, master ]  # Also run on direct pushes to main/master
 
 env:
   GO_VERSION: '1.24'
@@ -55,9 +62,9 @@ jobs:
         base: ${{ github.event.repository.default_branch }}
         head: HEAD
 
-  # Backend Quality Checks
-  backend-quality:
-    name: Backend Quality
+  # Backend Quality Analysis (coverage, security, vulnerabilities)
+  backend-quality-analysis:
+    name: Backend Quality Analysis
     runs-on: ubuntu-latest
     needs: quality-gates
     
@@ -108,16 +115,18 @@ jobs:
     - name: Go vulnerability check
       working-directory: ./backend
       run: |
+        echo "🔍 Scanning for known vulnerabilities..."
         go install golang.org/x/vuln/cmd/govulncheck@latest
         govulncheck ./...
 
-    - name: Go linting (strict)
+    - name: Go strict linting
       working-directory: ./backend
       run: |
+        echo "🔧 Running strict Go linting with zero tolerance..."
         go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-        golangci-lint run --timeout=5m
+        golangci-lint run --timeout=5m  # Fail on any linting issues
 
-    - name: Go tests with coverage
+    - name: Go tests with strict coverage requirements
       working-directory: ./backend
       env:
         DB_HOST: localhost
@@ -132,27 +141,51 @@ jobs:
         SERVER_PORT: 8080
         SERVER_HOST: localhost
       run: |
+        echo "📊 Running tests with coverage analysis..."
         go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
         
-        # Check coverage threshold (80%)
+        # Enforce strict 80% coverage threshold
         COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+        echo "Current coverage: $COVERAGE%"
         if (( $(echo "$COVERAGE < 80" | bc -l) )); then
-          echo "❌ Coverage $COVERAGE% is below 80% threshold"
+          echo "❌ Coverage $COVERAGE% is below required 80% threshold"
+          echo "🎯 Quality gate: Coverage must be ≥80% for production readiness"
           exit 1
         fi
-        echo "✅ Coverage: $COVERAGE%"
+        echo "✅ Coverage quality gate passed: $COVERAGE% ≥ 80%"
 
-    - name: Go security scan
+    - name: Upload coverage for SonarCloud
+      uses: actions/upload-artifact@v4
+      with:
+        name: backend-coverage
+        path: ./backend/coverage.out
+        retention-days: 1
+
+    - name: Go security analysis
       working-directory: ./backend
       run: |
+        echo "🛡️ Running comprehensive security analysis..."
         go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
         gosec -fmt json -out gosec-report.json ./...
+        
+        # Check if any high/medium security issues found
+        if [ -f gosec-report.json ]; then
+          HIGH_ISSUES=$(jq '[.Issues[] | select(.Severity == "HIGH")] | length' gosec-report.json 2>/dev/null || echo "0")
+          MEDIUM_ISSUES=$(jq '[.Issues[] | select(.Severity == "MEDIUM")] | length' gosec-report.json 2>/dev/null || echo "0")
+          
+          if [ "$HIGH_ISSUES" -gt 0 ] || [ "$MEDIUM_ISSUES" -gt 0 ]; then
+            echo "❌ Security issues found: $HIGH_ISSUES high, $MEDIUM_ISSUES medium"
+            echo "🛡️ Quality gate: No high/medium security issues allowed"
+            exit 1
+          fi
+          echo "✅ Security quality gate passed: No high/medium issues found"
+        fi
 
     # Coverage tracked locally - Codecov removed per user preference
 
-  # Frontend Quality Checks
-  frontend-quality:
-    name: Frontend Quality
+  # Frontend Quality Analysis (coverage, security, bundle size)  
+  frontend-quality-analysis:
+    name: Frontend Quality Analysis
     runs-on: ubuntu-latest
     needs: quality-gates
 
@@ -174,45 +207,66 @@ jobs:
       working-directory: ./frontend
       run: npm ci
 
-    - name: Audit dependencies
+    - name: Security audit
       working-directory: ./frontend
       run: |
+        echo "🔍 Scanning dependencies for security vulnerabilities..."
         npm audit --audit-level=moderate
+        echo "📦 Checking for outdated packages..."
         npm outdated || true
 
-    - name: TypeScript strict check
-      working-directory: ./frontend
-      run: npm run type-check
-
-    - name: ESLint (strict)
-      working-directory: ./frontend
-      run: npm run lint || echo "⚠️ Linting issues found but allowing CI to continue"
-      continue-on-error: true
-
-    - name: Prettier check
-      working-directory: ./frontend
-      run: npx prettier --check "src/**/*.{ts,tsx,vue,js,jsx}"
-
-    - name: Frontend tests with coverage
+    - name: TypeScript strict validation
       working-directory: ./frontend
       run: |
-        npm run test:unit -- --coverage --coverage.threshold.global.lines=80
+        echo "🔧 Running strict TypeScript validation..."
+        npm run type-check
+
+    - name: ESLint strict enforcement
+      working-directory: ./frontend
+      run: |
+        echo "🔧 Running strict ESLint with zero tolerance..."
+        npm run lint  # Must pass completely - no continue-on-error
+
+    - name: Code formatting validation
+      working-directory: ./frontend
+      run: |
+        echo "✨ Validating code formatting consistency..."
+        npx prettier --check "src/**/*.{ts,tsx,vue,js,jsx}"
+
+    - name: Frontend tests with strict coverage requirements
+      working-directory: ./frontend
+      run: |
+        echo "📊 Running tests with strict coverage requirements..."
+        npm run test:unit -- --coverage --coverage.threshold.global.lines=80 --coverage.threshold.global.functions=80 --coverage.threshold.global.branches=80 --coverage.threshold.global.statements=80
+        echo "✅ Coverage quality gate passed: All metrics ≥ 80%"
         
-    - name: Build check
-      working-directory: ./frontend
-      run: npm run build
-
-    - name: Bundle size check
+    - name: Upload coverage for SonarCloud
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-coverage
+        path: ./frontend/coverage/
+        retention-days: 1
+        
+    - name: Production build validation
       working-directory: ./frontend
       run: |
-        # Check if bundle size is reasonable (< 2MB)
+        echo "🏗️ Validating production build..."
+        npm run build
+
+    - name: Bundle size quality gate
+      working-directory: ./frontend
+      run: |
+        echo "📦 Enforcing bundle size limits for performance..."
         BUNDLE_SIZE=$(du -sb dist/ | cut -f1)
         MAX_SIZE=2097152  # 2MB in bytes
+        BUNDLE_SIZE_MB=$(($BUNDLE_SIZE / 1024 / 1024))
+        
         if [ $BUNDLE_SIZE -gt $MAX_SIZE ]; then
-          echo "❌ Bundle size $(($BUNDLE_SIZE / 1024 / 1024))MB exceeds 2MB limit"
+          echo "❌ Bundle size ${BUNDLE_SIZE_MB}MB exceeds 2MB performance limit"
+          echo "🎯 Quality gate: Bundle must be ≤2MB for optimal loading performance"
           exit 1
         fi
-        echo "✅ Bundle size: $(($BUNDLE_SIZE / 1024 / 1024))MB"
+        echo "✅ Bundle size quality gate passed: ${BUNDLE_SIZE_MB}MB ≤ 2MB"
 
     # Coverage tracked locally - Codecov removed per user preference
 
@@ -220,7 +274,7 @@ jobs:
   sonarcloud:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
-    needs: [backend-quality, frontend-quality]
+    needs: [backend-quality-analysis, frontend-quality-analysis]
 
     steps:
     - name: Checkout code
@@ -280,91 +334,25 @@ jobs:
         docker run --rm -v "$PWD":/workdir -w /workdir \
           hadolint/hadolint:latest hadolint backend/Dockerfile frontend/Dockerfile
 
-  # Integration Tests
-  integration-tests:
-    name: Integration Tests
-    runs-on: ubuntu-latest
-    needs: [backend-quality, frontend-quality]
-
-    services:
-      postgres:
-        image: pgvector/pgvector:pg16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: alchemorsel_test
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-      
-      redis:
-        image: redis:7-alpine
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
-        token: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: ${{ env.GO_VERSION }}
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-
-    - name: Install dependencies
-      run: |
-        cd backend && go mod download
-        cd ../frontend && npm ci
-        cd ../ui-tests && npm ci
-
-    - name: Run integration tests
-      working-directory: ./backend
-      env:
-        DB_HOST: localhost
-        DB_PORT: 5432
-        DB_USER: postgres
-        DB_PASSWORD: postgres
-        DB_NAME: alchemorsel_test
-        DB_SSL_MODE: disable
-        REDIS_HOST: localhost
-        REDIS_PORT: 6379
-        JWT_SECRET: test-jwt-secret
-      run: |
-        go test -tags=integration -v ./internal/integration/...
+  # Note: Integration tests handled by fast-ci.yml through E2E testing
+  # This keeps quality gates focused on static analysis and quality metrics
 
   # Final Quality Gate
   quality-gate-final:
     name: Final Quality Gate
     runs-on: ubuntu-latest
-    needs: [backend-quality, frontend-quality, sonarcloud, security-scans, integration-tests]
+    needs: [backend-quality-analysis, frontend-quality-analysis, sonarcloud, security-scans]
     if: always()
 
     steps:
     - name: Check all jobs passed
       run: |
-        if [[ "${{ needs.backend-quality.result }}" != "success" ]]; then
-          echo "❌ Backend quality checks failed"
+        if [[ "${{ needs.backend-quality-analysis.result }}" != "success" ]]; then
+          echo "❌ Backend quality analysis failed"
           exit 1
         fi
-        if [[ "${{ needs.frontend-quality.result }}" != "success" ]]; then
-          echo "❌ Frontend quality checks failed"
+        if [[ "${{ needs.frontend-quality-analysis.result }}" != "success" ]]; then
+          echo "❌ Frontend quality analysis failed"
           exit 1
         fi
         if [[ "${{ needs.sonarcloud.result }}" != "success" ]]; then
@@ -373,10 +361,6 @@ jobs:
         fi
         if [[ "${{ needs.security-scans.result }}" != "success" ]]; then
           echo "❌ Security scans failed"
-          exit 1
-        fi
-        if [[ "${{ needs.integration-tests.result }}" != "success" ]]; then
-          echo "❌ Integration tests failed"
           exit 1
         fi
         echo "✅ All quality gates passed!"
