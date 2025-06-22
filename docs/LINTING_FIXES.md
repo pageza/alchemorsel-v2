@@ -149,3 +149,49 @@ This document tracks systematic linting fixes applied to the codebase for better
 - **Documentation:** Update this file when adding new systematic fixes
 - **Review Cycle:** Quarterly review of linting rules and fix patterns
 - **Tool Updates:** Keep linting tools updated and review new rules
+
+## Frontend ESLint - Final Unused Variable Fixes (ESLINT-FIX-2025-J)
+
+**Date:** 2025-06-22
+**Status:** COMPLETED
+**Issues Fixed:** 10 unused variable errors (final cleanup)
+
+### Files Modified:
+
+1. **src/views/LoginView.vue**
+   ```typescript
+   // ESLINT-FIX-2025-J: Remove unused social login handler - feature not implemented yet
+   // const handleSocialLogin = () => {
+   //   // TODO: Implement social login
+   // }
+   ```
+
+2. **src/views/RecipeDetailView.vue**
+   ```typescript
+   // ESLINT-FIX-2025-J: Remove unused notification store import
+   // import { useNotificationStore } from '@/stores/notification.store'
+   // const notificationStore = useNotificationStore()
+   ```
+
+3. **src/views/admin/RecipeModeration.vue** - 3 unused error parameters
+   ```typescript
+   } catch {
+     // ESLINT-FIX-2025-J: Remove unused error parameter
+     notificationStore.showError('Failed to hide recipe')
+   }
+   ```
+
+4. **src/views/admin/UserManagement.vue** - 5 unused error parameters
+   ```typescript
+   } catch {
+     // ESLINT-FIX-2025-J: Remove unused error parameter
+     notificationStore.showError('Failed to load user details')
+   }
+   ```
+
+### Resolution Summary:
+- **Total ESLint Issues Fixed:** 58 → 0 (100% completion)
+- **TypeScript 'any' types eliminated:** 34 (ESLINT-FIX-2025-A through I)
+- **Unused variables removed:** 10 (ESLINT-FIX-2025-J)
+- **Pattern:** Commented out unused code rather than deleting for future reference
+- **Testing:** All 65 frontend tests still passing after fixes
