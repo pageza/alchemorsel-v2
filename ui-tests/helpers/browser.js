@@ -74,7 +74,7 @@ class BrowserManager {
   }
 
   async waitForTimeout(milliseconds) {
-    await this.page.waitForTimeout(milliseconds);
+    await new Promise(resolve => setTimeout(resolve, milliseconds));
   }
 
   async screenshot(name) {
