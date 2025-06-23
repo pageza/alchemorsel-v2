@@ -73,6 +73,10 @@ class BrowserManager {
     return this.page.url();
   }
 
+  async waitForTimeout(milliseconds) {
+    await new Promise(resolve => setTimeout(resolve, milliseconds));
+  }
+
   async screenshot(name) {
     if (process.env.SCREENSHOT_ON_FAILURE === 'true') {
       const filepath = path.join(this.screenshotDir, `${name}.png`);

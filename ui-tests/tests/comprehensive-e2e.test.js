@@ -55,7 +55,7 @@ describe('Comprehensive E2E Tests', () => {
         await browser.clickElement('[data-testid="login-submit"]');
         
         // Wait for potential redirect or error message
-        await browser.page.waitForTimeout(3000);
+        await browser.waitForTimeout(3000);
         
         const currentUrl = browser.getCurrentUrl();
         console.log('Current URL after login attempt:', currentUrl);
@@ -79,7 +79,7 @@ describe('Comprehensive E2E Tests', () => {
           await browser.clickElement('[data-testid="register-link"]');
           
           // Wait for navigation to complete
-          await browser.page.waitForTimeout(1500);
+          await browser.waitForTimeout(1500);
           
           // Check if we're on register page
           const currentUrl = browser.getCurrentUrl();
@@ -128,7 +128,7 @@ describe('Comprehensive E2E Tests', () => {
           await browser.fillInput('[data-testid="recipe-search"]', 'chicken');
           
           // Wait for potential search results
-          await browser.page.waitForTimeout(2000);
+          await browser.waitForTimeout(2000);
           
           console.log('Search for "chicken" completed');
         }
@@ -181,7 +181,7 @@ describe('Comprehensive E2E Tests', () => {
           await browser.fillInput('[data-testid="email-input"]', 'test@alchemorsel.com');
           await browser.fillInput('[data-testid="password-input"]', 'TestPassword123');
           await browser.clickElement('[data-testid="login-submit"]');
-          await browser.page.waitForTimeout(3000);
+          await browser.waitForTimeout(3000);
           console.log('✓ Login attempt completed');
         }
         

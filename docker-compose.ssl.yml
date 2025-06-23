@@ -1,0 +1,140 @@
+services:
+  nginx-proxy:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config/nginx-ssl.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+
+  frontend:
+    image: alchemorsel/frontend:v1.2.0
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    image: alchemorsel/backend:v1.2.0
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=postgres
+      - REDIS_HOST=redis
+      - DEEPSEEK_API_KEY_FILE=/run/secrets/deepseek_api_key
+      - OPENAI_API_KEY_FILE=/run/secrets/openai_api_key
+      - DATABASE_URL=postgres://postgres:${DB_PASSWORD:-your_secure_password_here}@postgres:5432/alchemorsel?sslmode=disable
+    secrets:
+      - db_password
+      - db_user
+      - db_name
+      - db_host
+      - db_port
+      - db_ssl_mode
+      - redis_url
+      - redis_password
+      - redis_host
+      - redis_port
+      - aws_access_key_id
+      - aws_secret_access_key
+      - aws_region
+      - s3_bucket_name
+      - deepseek_api_key
+      - openai_api_key
+      - jwt_secret
+      - server_port
+      - server_host
+      - smtp_host
+      - smtp_port
+      - smtp_username
+      - smtp_password
+      - email_from
+      - email_from_name
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  postgres:
+    image: ankane/pgvector:latest
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-your_secure_password_here}
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=alchemorsel
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:latest
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
+  db_user:
+    file: ./secrets/db_user.txt
+  db_name:
+    file: ./secrets/db_name.txt
+  db_host:
+    file: ./secrets/db_host.txt
+  db_port:
+    file: ./secrets/db_port.txt
+  db_ssl_mode:
+    file: ./secrets/db_ssl_mode.txt
+  redis_url:
+    file: ./secrets/redis_url.txt
+  redis_password:
+    file: ./secrets/redis_password.txt
+  redis_host:
+    file: ./secrets/redis_host.txt
+  redis_port:
+    file: ./secrets/redis_port.txt
+  aws_access_key_id:
+    file: ./secrets/aws_access_key_id.txt
+  aws_secret_access_key:
+    file: ./secrets/aws_secret_access_key.txt
+  aws_region:
+    file: ./secrets/aws_region.txt
+  s3_bucket_name:
+    file: ./secrets/s3_bucket_name.txt
+  deepseek_api_key:
+    file: ./secrets/deepseek_api_key.txt
+  openai_api_key:
+    file: ./secrets/openai_api_key.txt
+  jwt_secret:
+    file: ./secrets/jwt_secret.txt
+  server_port:
+    file: ./secrets/server_port
+  server_host:
+    file: ./secrets/server_host
+  smtp_host:
+    file: ./secrets/smtp_host.txt
+  smtp_port:
+    file: ./secrets/smtp_port.txt
+  smtp_username:
+    file: ./secrets/smtp_username.txt
+  smtp_password:
+    file: ./secrets/smtp_password.txt
+  email_from:
+    file: ./secrets/email_from.txt
+  email_from_name:
+    file: ./secrets/email_from_name.txt
