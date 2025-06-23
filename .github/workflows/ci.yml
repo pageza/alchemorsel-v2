@@ -411,12 +411,13 @@ jobs:
     - name: Install Chrome dependencies
       run: |
         # Install Chrome dependencies for Puppeteer
+        # E2E-FIX-2025-H: Update package names for Ubuntu 24.04 compatibility
         sudo apt-get update
         sudo apt-get install -y \
           ca-certificates \
           fonts-liberation \
           libappindicator3-1 \
-          libasound2 \
+          libasound2t64 \
           libatk-bridge2.0-0 \
           libgtk-3-0 \
           libnspr4 \
