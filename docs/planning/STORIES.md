@@ -85,7 +85,7 @@ This document provides a comprehensive collection of user stories and workflows 
 
 **Epic: Recipe Generation**
 - ⚠️ 🎯 As a user, I want to generate recipes using AI by describing what I want *(UX needs improvement, nutrition calculation issues)*
-- ⚠️ 🎯 As a user, I want the AI to consider my dietary preferences when generating recipes *(dietary restrictions not enforced)*
+- ✅ 🎯 As a user, I want the AI to consider my dietary preferences when generating recipes
 - ⚠️ 🎯 As a user, I want to see if similar recipes already exist before creating new ones *(similarity detection broken)*
 - ⚠️ 🎯 As a user, I want to modify AI-generated recipe drafts before saving *(draft card needs cleanup)*
 - ✅ 🎯 As a user, I want to skip similarity checking if I want to create a variant recipe
@@ -438,29 +438,24 @@ This document provides a comprehensive collection of user stories and workflows 
 **High Priority Fixes Needed:**
 1. **Profile System** - Edit forms broken, data not populating
 2. **AI Recipe Generation** - Search/similarity detection broken
-3. **Email Verification** - Not enforcing email verification requirements
-4. **Nutrition Calculation** - All recipes showing same calories
-5. **Recipe Search** - Returning incorrect/irrelevant results
-6. **Dietary Restrictions** - Not enforcing user dietary preferences
+3. **Recipe Search** - Returning incorrect/irrelevant results
 
 ### Feature Coverage Assessment
-- **✅ Strong:** Basic authentication, recipe CRUD, basic admin functionality
+- **✅ Strong:** Basic authentication, recipe CRUD, basic admin functionality, dietary restriction enforcement, nutrition calculation
 - **⚠️ Needs Work:** Profile management, AI generation UX, search accuracy
-- **❌ Missing:** Email system, comments, image generation, mobile optimization
+- **❌ Missing:** Comments, image generation, mobile optimization
 - **❌ Future:** Social features, advanced analytics, third-party integrations
 
 ### MVP Readiness
-**Current State:** ~55% of MVP features working properly
+**Current State:** ~65% of MVP features working properly
 **Blockers for MVP Launch:**
 - Profile system must be fixed
 - AI recipe generation workflow needs improvement  
-- Email verification system required
 - Search accuracy must be improved
-- Dietary restriction enforcement needed
 
 ### Development Priorities
 1. **Phase 1 (Critical):** Fix profile system, improve AI generation
-2. **Phase 2 (Essential):** Implement email system, fix search
+2. **Phase 2 (Essential):** Fix search accuracy
 3. **Phase 3 (Polish):** Recipe images, comments system
 4. **Phase 4 (Growth):** Social features, mobile optimization
 

@@ -1,0 +1,52 @@
+🧪 Simple Recipe Generation Test
+================================
+1. Logging in as test@test.com...
+✅ Login successful, JWT obtained
+
+2. Generating 10 recipes...
+==========================
+[1/10] Generating: spicy pasta
+  ❌ Failed: {"email":"test@test.com","error":"email verification required","message":"Please verify your email a...
+[2/10] Generating: chocolate cookies
+  ❌ Failed: {"email":"test@test.com","error":"email verification required","message":"Please verify your email a...
+[3/10] Generating: green smoothie
+  ❌ Failed: {"email":"test@test.com","error":"email verification required","message":"Please verify your email a...
+[4/10] Generating: chicken stir fry
+  ❌ Failed: {"email":"test@test.com","error":"email verification required","message":"Please verify your email a...
+[5/10] Generating: homemade pizza
+  ❌ Failed: {"email":"test@test.com","error":"email verification required","message":"Please verify your email a...
+[6/10] Generating: banana bread
+  ❌ Failed: {"email":"test@test.com","error":"email verification required","message":"Please verify your email a...
+[7/10] Generating: vegetable soup
+  ❌ Failed: {"email":"test@test.com","error":"email verification required","message":"Please verify your email a...
+[8/10] Generating: beef tacos
+  ❌ Failed: {"email":"test@test.com","error":"email verification required","message":"Please verify your email a...
+[9/10] Generating: quinoa bowl
+  ❌ Failed: {"email":"test@test.com","error":"email verification required","message":"Please verify your email a...
+[10/10] Generating: blueberry pancakes
+  ❌ Failed: {"email":"test@test.com","error":"email verification required","message":"Please verify your email a...
+
+3. Analyzing logs...
+===================
+Parsing Results:
+---------------
+Total parsing attempts: 0
+0
+Successful parses:      0
+0
+Failed parses:          0
+0
+
+Raw DeepSeek Responses:
+----------------------
+
+Sample Successful JSON:
+----------------------
+Could not parse JSON
+
+Failure Analysis:
+----------------
+No parsing failures found
+
+Full logs saved to: /tmp/recipe_test_logs.txt
+🏁 Test completed!

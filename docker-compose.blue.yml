@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  backend-blue:
+    image: ${BACKEND_IMAGE:-pageza/backend:latest}
+    container_name: alchemorsel-backend-blue
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      # AWS RDS PostgreSQL
+      - DATABASE_URL=${AWS_DATABASE_URL}
+      - DB_HOST=${AWS_DB_HOST}
+      - DB_PORT=${AWS_DB_PORT:-5432}
+      - DB_NAME=${AWS_DB_NAME}
+      - DB_USER=${AWS_DB_USER}
+      - DB_PASSWORD=${AWS_DB_PASSWORD}
+      # AWS ElastiCache Redis
+      - REDIS_URL=${AWS_REDIS_URL}
+      - REDIS_HOST=${AWS_REDIS_HOST}
+      - REDIS_PORT=${AWS_REDIS_PORT:-6379}
+      # LLM Configuration
+      - LLM_API_KEY=${LLM_API_KEY}
+      - LLM_BASE_URL=${LLM_BASE_URL}
+      - LLM_MODEL=${LLM_MODEL}
+      - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.7}
+      # AWS S3 Configuration
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - S3_BUCKET=${S3_BUCKET}
+      # JWT Configuration
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-24h}
+      # Environment identification
+      - DEPLOYMENT_ENV=blue
+      - DEPLOYMENT_VERSION=${DEPLOYMENT_VERSION}
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+    labels:
+      - "com.alchemorsel.environment=blue"
+      - "com.alchemorsel.service=backend"
+
+  frontend-blue:
+    image: ${FRONTEND_IMAGE:-pageza/frontend:latest}
+    container_name: alchemorsel-frontend-blue
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - VITE_API_BASE_URL=http://localhost:8080/api
+      - VITE_APP_VERSION=${DEPLOYMENT_VERSION}
+      - DEPLOYMENT_ENV=blue
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend-blue:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+    labels:
+      - "com.alchemorsel.environment=blue"
+      - "com.alchemorsel.service=frontend"
+
+networks:
+  default:
+    name: alchemorsel-blue
+    driver: bridge

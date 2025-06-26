@@ -1,0 +1,18 @@
+🧪 Simple Recipe Generation Test
+================================
+1. Logging in as test@test.com...
+✅ Login successful, JWT obtained
+
+2. Generating 10 recipes...
+==========================
+[1/10] Generating: spicy pasta
+  ✅ Success
+[2/10] Generating: chocolate cookies
+  ✅ Success
+[3/10] Generating: green smoothie
+  ✅ Success
+[4/10] Generating: chicken stir fry
+  ✅ Success
+[5/10] Generating: homemade pizza
+  ✅ Success
+[6/10] Generating: banana bread
