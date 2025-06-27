@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alchemorsel - AI Cooking Companion</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f9f7f4;
+            color: #5a4a42;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        /* Top Navigation */
+        .top-navbar {
+            background: #8b7d74;
+            color: white;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+            border-bottom: 2px solid #7a6e66;
+            z-index: 1000;
+        }
+        
+        .nav-brand {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: #faf8f5;
+            text-decoration: none;
+            opacity: 0.9;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .user-menu-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #faf8f5;
+        }
+        
+        .avatar-nav {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #bc9a8b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .main-app-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        /* Chat Sidebar */
+        .chat-sidebar {
+            width: 320px;
+            background: #ffffff;
+            border-right: 2px solid #d4c4b0;
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+        }
+        
+        .chat-sidebar.collapsed {
+            width: 60px;
+        }
+        
+        .chat-header {
+            background: #faf8f5;
+            color: #5a4a42;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #d4c4b0;
+        }
+        
+        .chat-sidebar.collapsed .chat-header {
+            padding: 15px 15px;
+        }
+        
+        .chat-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .chat-sidebar.collapsed .chat-title {
+            display: none;
+        }
+        
+        .collapse-btn {
+            background: none;
+            border: none;
+            color: #8b7d74;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        
+        .collapse-btn:hover {
+            background: rgba(139, 125, 116, 0.1);
+        }
+        
+        .new-chat-btn {
+            margin: 10px 20px;
+            padding: 10px;
+            background: #7a8a76;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s ease;
+            order: 1;
+        }
+        
+        .new-chat-btn:hover {
+            background: #6b7a67;
+        }
+        
+        .chat-sidebar.collapsed .new-chat-btn {
+            display: none;
+        }
+        
+        .new-chat-btn.hidden {
+            display: none;
+        }
+        
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column-reverse;
+            order: 2;
+        }
+        
+        .chat-list.hidden {
+            transform: translateX(-100%);
+            position: absolute;
+            width: 100%;
+        }
+        
+        .chat-sidebar.collapsed .chat-list {
+            display: none;
+        }
+        
+        .chat-item {
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(212, 196, 176, 0.3);
+            cursor: pointer;
+            transition: background 0.2s ease;
+            order: 1;
+        }
+        
+        .chat-item:first-child {
+            border-bottom: none;
+        }
+        
+        .chat-item:hover {
+            background: rgba(163, 149, 136, 0.05);
+        }
+        
+        .chat-item.active {
+            background: rgba(122, 138, 118, 0.1);
+            border-left: 3px solid #7a8a76;
+        }
+        
+        .chat-item-title {
+            font-weight: 500;
+            color: #5a4a42;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        
+        .chat-item-preview {
+            color: #8b7d74;
+            font-size: 12px;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .chat-item-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+        }
+        
+        .chat-item-time {
+            font-size: 11px;
+            color: #a39588;
+        }
+        
+        .chat-item-status {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+        
+        .status-draft {
+            background: rgba(188, 154, 139, 0.2);
+            color: #bc9a8b;
+        }
+        
+        .status-saved {
+            background: rgba(122, 138, 118, 0.2);
+            color: #7a8a76;
+        }
+        
+        .active-chat-area {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            background: #fefdfb;
+        }
+        
+        .active-chat-area.visible {
+            display: flex;
+        }
+        
+        .active-chat-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #d4c4b0;
+            background: #f5f2ed;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-sidebar.collapsed .active-chat-header {
+            display: none;
+        }
+        
+        .active-chat-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5a4a42;
+            margin-bottom: 5px;
+        }
+        
+        .active-chat-subtitle {
+            font-size: 12px;
+            color: #8b7d74;
+        }
+        
+        .back-to-chats {
+            background: none;
+            border: none;
+            color: #8b7d74;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.2s ease;
+        }
+        
+        .back-to-chats:hover {
+            background: rgba(139, 125, 116, 0.1);
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        
+        .chat-sidebar.collapsed .chat-messages {
+            display: none;
+        }
+        
+        .chat-message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.4;
+            flex-shrink: 0;
+        }
+        
+        .chat-message.user {
+            background: rgba(122, 138, 118, 0.1);
+            border-left: 3px solid #7a8a76;
+            margin-left: 20px;
+        }
+        
+        .chat-message.assistant {
+            background: rgba(163, 149, 136, 0.08);
+            border-left: 3px solid #a39588;
+        }
+        
+        .message-time {
+            font-size: 11px;
+            color: #8b7d74;
+            margin-top: 5px;
+        }
+        
+        .chat-message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .chat-message.user {
+            background: rgba(122, 138, 118, 0.1);
+            border-left: 3px solid #7a8a76;
+            margin-left: 20px;
+        }
+        
+        .chat-message.assistant {
+            background: rgba(163, 149, 136, 0.08);
+            border-left: 3px solid #a39588;
+        }
+        
+        .message-time {
+            font-size: 11px;
+            color: #8b7d74;
+            margin-top: 5px;
+        }
+        
+        .chat-input-container {
+            padding: 15px 20px;
+            border-top: 1px solid #d4c4b0;
+            background: #faf8f5;
+        }
+        
+        .chat-sidebar.collapsed .chat-input-container {
+            display: none;
+        }
+        
+        .chat-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #d4c4b0;
+            border-radius: 20px;
+            background: white;
+            resize: none;
+            min-height: 20px;
+            max-height: 100px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: #a39588;
+        }
+        
+        .send-button {
+            position: absolute;
+            right: 30px;
+            bottom: 30px;
+            background: #7a8a76;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .send-button:hover {
+            background: #6b7a67;
+        }
+        
+        .send-button:disabled {
+            background: #d4c4b0;
+            cursor: not-allowed;
+        }
+        
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+        
+        .content-header {
+            background: #faf8f5;
+            padding: 20px 30px;
+            border-bottom: 1px solid #d4c4b0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .content-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #5a4a42;
+        }
+        
+        .content-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #bc9a8b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+        
+        /* Welcome State */
+        .welcome-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            color: #8b7d74;
+        }
+        
+        .welcome-icon {
+            font-size: 80px;
+            margin-bottom: 30px;
+        }
+        
+        .welcome-title {
+            font-size: 32px;
+            margin-bottom: 15px;
+            color: #5a4a42;
+        }
+        
+        .welcome-subtitle {
+            font-size: 18px;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+        
+        .suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            max-width: 600px;
+        }
+        
+        .suggestion-chip {
+            background: rgba(122, 138, 118, 0.1);
+            border: 1px solid rgba(122, 138, 118, 0.3);
+            border-radius: 20px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #7a8a76;
+            font-size: 14px;
+        }
+        
+        .suggestion-chip:hover {
+            background: rgba(122, 138, 118, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        /* Recipe Grid View */
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .recipe-card {
+            border: 1px solid #d4c4b0;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .recipe-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(163, 149, 136, 0.15);
+        }
+        
+        .recipe-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #f5f2ed, #e8e3da);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a39588;
+            font-size: 48px;
+        }
+        
+        .recipe-content {
+            padding: 20px;
+        }
+        
+        .recipe-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #5a4a42;
+        }
+        
+        .recipe-meta {
+            display: flex;
+            gap: 15px;
+            color: #8b7d74;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .dietary-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .tag {
+            background: rgba(122, 138, 118, 0.15);
+            color: #7a8a76;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            border: 1px solid rgba(122, 138, 118, 0.3);
+        }
+        
+        /* Recipe Detail View */
+        .recipe-detail {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .recipe-header {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .recipe-main-image {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(45deg, #f5f2ed, #e8e3da);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a39588;
+            font-size: 64px;
+        }
+        
+        .recipe-info h1 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: #5a4a42;
+        }
+        
+        .recipe-description {
+            color: #7a6e66;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .recipe-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            background: rgba(188, 154, 139, 0.08);
+            border-radius: 8px;
+            border: 1px solid rgba(188, 154, 139, 0.2);
+        }
+        
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #8b7d74;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #7a6e66;
+            margin-top: 5px;
+        }
+        
+        .recipe-sections {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+        }
+        
+        .ingredients-section {
+            background: #faf8f5;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #d4c4b0;
+        }
+        
+        .ingredients-section h3 {
+            color: #5a4a42;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .ingredient-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(212, 196, 176, 0.5);
+            color: #5a4a42;
+        }
+        
+        .ingredient-item:last-child {
+            border-bottom: none;
+        }
+        
+        .instructions-section h3 {
+            color: #5a4a42;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .instructions-section ol {
+            padding-left: 20px;
+        }
+        
+        .instructions-section li {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            color: #5a4a42;
+        }
+        
+        /* Loading State */
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #8b7d74;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f5f2ed;
+            border-top: 4px solid #a39588;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .chat-sidebar {
+                width: 100%;
+                position: absolute;
+                z-index: 1000;
+                height: 100vh;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .chat-sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .recipe-header {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .recipe-sections {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #8b7d74;
+            font-style: italic;
+            padding: 10px;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .typing-dot {
+            width: 4px;
+            height: 4px;
+            background: #a39588;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.3;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary {
+            background: #7a8a76;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #6b7a67;
+        }
+        
+        .btn-secondary {
+            background: #f5f2ed;
+            color: #5a4a42;
+            border: 1px solid #d4c4b0;
+        }
+        
+        .btn-secondary:hover {
+            background: #e8e3da;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Navigation -->
+        <nav class="top-navbar">
+            <div class="nav-brand">
+                🧪 Alchemorsel
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" class="active">Chat</a></li>
+                <li><a href="#">Browse Recipes</a></li>
+                <li><a href="#">My Cookbook</a></li>
+                <li><a href="#">Meal Planner</a></li>
+            </ul>
+            <div class="user-menu-nav">
+                <span>John Doe</span>
+                <div class="avatar-nav">JD</div>
+            </div>
+        </nav>
+        
+        <!-- Main App Content -->
+        <div class="main-app-content">
+            <!-- Chat Sidebar -->
+            <div class="chat-sidebar" id="chatSidebar">
+                <div class="chat-header">
+                    <div class="chat-title">Recent Chats</div>
+                    <button class="collapse-btn" onclick="toggleSidebar()">
+                        <span id="collapseIcon">‹</span>
+                    </button>
+                </div>
+                
+                <div class="chat-list" id="chatList">
+                    <div class="chat-item" onclick="openChat(this, 'Thai Curry Exploration')">
+                        <div class="chat-item-title">Thai Curry Exploration</div>
+                        <div class="chat-item-preview">Help me understand the differences between red, green, and yellow curry...</div>
+                        <div class="chat-item-meta">
+                            <span class="chat-item-time">1 week ago</span>
+                            <span class="chat-item-status status-saved">Saved</span>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-item" onclick="openChat(this, 'Vegetarian Pasta Modifications')">
+                        <div class="chat-item-title">Vegetarian Pasta Modifications</div>
+                        <div class="chat-item-preview">Can you modify my creamy mushroom pasta to be vegan?</div>
+                        <div class="chat-item-meta">
+                            <span class="chat-item-time">2 days ago</span>
+                            <span class="chat-item-status status-saved">Saved</span>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-item" onclick="openChat(this, 'Quick Lunch Ideas')">
+                        <div class="chat-item-title">Quick Lunch Ideas</div>
+                        <div class="chat-item-preview">I need something healthy that I can take to work...</div>
+                        <div class="chat-item-meta">
+                            <span class="chat-item-time">Yesterday</span>
+                            <span class="chat-item-status status-saved">Saved</span>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-item" onclick="openChat(this, 'Spicy Kimchi Ramen')">
+                        <div class="chat-item-title">Spicy Kimchi Ramen</div>
+                        <div class="chat-item-preview">Show me my favorite recipes. Here are your favorite recipes! I found 12...</div>
+                        <div class="chat-item-meta">
+                            <span class="chat-item-time">1 hour ago</span>
+                            <span class="chat-item-status status-saved">Saved</span>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-item" onclick="openChat(this, 'Korean-Mexican Fusion Ideas')">
+                        <div class="chat-item-title">Korean-Mexican Fusion Ideas</div>
+                        <div class="chat-item-preview">I want to make a fusion dish combining Korean and Mexican flavors...</div>
+                        <div class="chat-item-meta">
+                            <span class="chat-item-time">2 min ago</span>
+                            <span class="chat-item-status status-draft">Draft</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="new-chat-btn" onclick="startNewChat()">
+                    + New Chat
+                </button>
+                
+                <div class="active-chat-area" id="activeChatArea">
+                    <div class="active-chat-header">
+                        <div>
+                            <div class="active-chat-title" id="activeChatTitle">Korean-Mexican Fusion Ideas</div>
+                            <div class="active-chat-subtitle" id="activeChatSubtitle">Working on a draft recipe</div>
+                        </div>
+                        <button class="back-to-chats" onclick="backToChats()">
+                            ← Back
+                        </button>
+                    </div>
+                    
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-message assistant">
+                            <div>Welcome! I'm your AI cooking companion. What would you like to create today?</div>
+                            <div class="message-time">10:15 AM</div>
+                        </div>
+                        
+                        <div class="chat-message user">
+                            <div>I want to make a fusion dish combining Korean and Mexican flavors</div>
+                            <div class="message-time">10:15 AM</div>
+                        </div>
+                        
+                        <div class="chat-message assistant">
+                            <div>Great idea! Korean-Mexican fusion is delicious. I'm thinking kimchi tacos or bulgogi quesadillas. What type of meal are you looking for? Lunch, dinner, or maybe an appetizer?</div>
+                            <div class="message-time">10:15 AM</div>
+                        </div>
+                        
+                        <div id="typingIndicator" class="typing-indicator" style="display: none;">
+                            <span>Chef AI is thinking</span>
+                            <div class="typing-dots">
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input-container">
+                        <textarea 
+                            class="chat-input" 
+                            id="chatInput"
+                            placeholder="Continue the conversation..."
+                            rows="1"
+                            onkeydown="handleKeyDown(event)"
+                            oninput="autoResize(this)"
+                        ></textarea>
+                        <button class="send-button" onclick="sendMessage()" id="sendButton">
+                            ➤
+                        </button>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- Main Content Area -->
+            <div class="main-content">
+                <div class="content-header">
+                    <div class="content-title" id="contentTitle">Korean-Mexican Fusion Recipe</div>
+                    <div class="content-actions">
+                        <button class="btn btn-secondary">Save Recipe</button>
+                        <button class="btn btn-primary">Share</button>
+                    </div>
+                </div>
+            
+            <div class="content-area" id="contentArea">
+                <!-- Recipe Grid View -->
+                <div class="recipe-grid" id="recipeGrid">
+                    <div class="recipe-card" onclick="showRecipeDetail()">
+                        <div class="recipe-image">🍜</div>
+                        <div class="recipe-content">
+                            <div class="recipe-title">Spicy Kimchi Ramen</div>
+                            <div class="recipe-meta">
+                                <span>⏱ 25 min</span>
+                                <span>👥 2 servings</span>
+                                <span>❤️ Favorited</span>
+                            </div>
+                            <div class="dietary-tags">
+                                <span class="tag">Vegetarian</span>
+                                <span class="tag">Spicy</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recipe-card">
+                        <div class="recipe-image">🥗</div>
+                        <div class="recipe-content">
+                            <div class="recipe-title">Mediterranean Quinoa Bowl</div>
+                            <div class="recipe-meta">
+                                <span>⏱ 20 min</span>
+                                <span>👥 4 servings</span>
+                                <span>❤️ Favorited</span>
+                            </div>
+                            <div class="dietary-tags">
+                                <span class="tag">Vegan</span>
+                                <span class="tag">Gluten-Free</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recipe-card">
+                        <div class="recipe-image">🌮</div>
+                        <div class="recipe-content">
+                            <div class="recipe-title">Fish Tacos with Mango Salsa</div>
+                            <div class="recipe-meta">
+                                <span>⏱ 30 min</span>
+                                <span>👥 6 servings</span>
+                                <span>❤️ Favorited</span>
+                            </div>
+                            <div class="dietary-tags">
+                                <span class="tag">Gluten-Free</span>
+                                <span class="tag">Fresh</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recipe-card">
+                        <div class="recipe-image">🍝</div>
+                        <div class="recipe-content">
+                            <div class="recipe-title">Creamy Mushroom Pasta</div>
+                            <div class="recipe-meta">
+                                <span>⏱ 35 min</span>
+                                <span>👥 4 servings</span>
+                                <span>❤️ Favorited</span>
+                            </div>
+                            <div class="dietary-tags">
+                                <span class="tag">Vegetarian</span>
+                                <span class="tag">Comfort Food</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recipe-card">
+                        <div class="recipe-image">🥘</div>
+                        <div class="recipe-content">
+                            <div class="recipe-title">Thai Green Curry</div>
+                            <div class="recipe-meta">
+                                <span>⏱ 45 min</span>
+                                <span>👥 6 servings</span>
+                                <span>❤️ Favorited</span>
+                            </div>
+                            <div class="dietary-tags">
+                                <span class="tag">Vegan</span>
+                                <span class="tag">Spicy</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recipe-card">
+                        <div class="recipe-image">🍲</div>
+                        <div class="recipe-content">
+                            <div class="recipe-title">Lentil & Sweet Potato Stew</div>
+                            <div class="recipe-meta">
+                                <span>⏱ 40 min</span>
+                                <span>👥 8 servings</span>
+                                <span>❤️ Favorited</span>
+                            </div>
+                            <div class="dietary-tags">
+                                <span class="tag">Vegan</span>
+                                <span class="tag">High-Protein</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('chatSidebar');
+            const icon = document.getElementById('collapseIcon');
+            
+            sidebar.classList.toggle('collapsed');
+            icon.textContent = sidebar.classList.contains('collapsed') ? '›' : '‹';
+        }
+        
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+        }
+        
+        function handleKeyDown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to chat
+            addChatMessage(message, 'user');
+            
+            // Clear input
+            input.value = '';
+            input.style.height = 'auto';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Simulate AI response after delay
+            setTimeout(() => {
+                hideTypingIndicator();
+                handleAIResponse(message);
+            }, 1500);
+        }
+        
+        function addChatMessage(message, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${sender}`;
+            
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+            
+            messageDiv.innerHTML = `
+                <div>${message}</div>
+                <div class="message-time">${timeString}</div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            
+            // Scroll to bottom to show new message
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'flex';
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+        
+        function handleAIResponse(userMessage) {
+            const message = userMessage.toLowerCase();
+            
+            if (message.includes('recipe') && message.includes('detail')) {
+                showRecipeDetail();
+                addChatMessage("Boom! Here's the full recipe breakdown. Every ingredient, every step, every delicious detail!", 'assistant');
+            } else if (message.includes('welcome') || message.includes('home')) {
+                showWelcomeScreen();
+                addChatMessage("Welcome back, chef! What culinary adventure are we embarking on today?", 'assistant');
+            } else if (message.includes('fusion') || message.includes('korean') || message.includes('mexican')) {
+                addChatMessage("Ooh, fusion vibes! I'm thinking Korean BBQ Tacos with kimchi slaw and gochujang crema - it's like a flavor party in your mouth! Want me to whip up the full recipe?", 'assistant');
+            } else if (message.includes('modify') || message.includes('change')) {
+                addChatMessage("Let's remix this recipe! What tweaks are you thinking? Want to swap ingredients, change the spice level, or maybe make it work with what's in your fridge?", 'assistant');
+            } else if (message.includes('vegan')) {
+                addChatMessage("Going plant-based? I love it! Let me work some vegan magic on this recipe. We'll swap out the eggs for some perfectly seasoned tofu and keep all that amazing flavor!", 'assistant');
+            } else {
+                const responses = [
+                    "I'm totally here for it! Tell me more about what you're craving.",
+                    "Ooh, interesting! What's cooking in that brilliant mind of yours?",
+                    "Love the direction! Let's make something absolutely delicious together.",
+                    "Now we're talking! What kind of flavor adventure are we going on?"
+                ];
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                addChatMessage(randomResponse, 'assistant');
+            }
+        }
+        
+        function showWelcomeScreen() {
+            document.getElementById('contentTitle').textContent = "What's Cooking, Good Looking?";
+            document.getElementById('contentArea').innerHTML = `
+                <div class="welcome-state">
+                    <div class="welcome-icon">👨‍🍳</div>
+                    <h2 class="welcome-title">What's Cooking, Good Looking?</h2>
+                    <p class="welcome-subtitle">Ready to whip up something delicious? I'm here to help you cook like a pro!</p>
+                    <div class="suggestion-chips">
+                        <div class="suggestion-chip" onclick="suggestAction('Show me my recipes')">Show my recipes</div>
+                        <div class="suggestion-chip" onclick="suggestAction('Create something fusion-y')">Create something fusion-y</div>
+                        <div class="suggestion-chip" onclick="suggestAction('I need quick lunch magic')">Quick lunch magic</div>
+                        <div class="suggestion-chip" onclick="suggestAction('Help me remix a recipe')">Remix a recipe</div>
+                        <div class="suggestion-chip" onclick="suggestAction('Meal prep like a boss')">Meal prep like a boss</div>
+                        <div class="suggestion-chip" onclick="suggestAction('Surprise me with something tasty!')">Surprise me!</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function openChat(chatElement, chatTitle) {
+            // Remove active from all chat items
+            document.querySelectorAll('.chat-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active to clicked chat
+            chatElement.classList.add('active');
+            
+            // Hide chat list and new chat button
+            document.getElementById('chatList').classList.add('hidden');
+            document.querySelector('.new-chat-btn').classList.add('hidden');
+            
+            // Show active chat area
+            document.getElementById('activeChatArea').classList.add('visible');
+            
+            // Update chat title
+            document.getElementById('activeChatTitle').textContent = chatTitle;
+            
+            // Load chat messages based on chat (mock data for now)
+            loadChatMessages(chatTitle);
+        }
+        
+        function backToChats() {
+            // Hide active chat area
+            document.getElementById('activeChatArea').classList.remove('visible');
+            
+            // Show chat list and new chat button
+            document.getElementById('chatList').classList.remove('hidden');
+            document.querySelector('.new-chat-btn').classList.remove('hidden');
+        }
+        
+        function loadChatMessages(chatTitle) {
+            const chatMessages = document.getElementById('chatMessages');
+            
+            // Mock different chat histories
+            const chatData = {
+                'Korean-Mexican Fusion Ideas': [
+                    { role: 'assistant', message: 'Hey there, culinary adventurer! What delicious creation are we cooking up today?', time: '10:15 AM' },
+                    { role: 'user', message: 'I want to make a fusion dish combining Korean and Mexican flavors', time: '10:15 AM' },
+                    { role: 'assistant', message: 'Ooh, I love where your taste buds are going! Korean-Mexican fusion is absolutely divine. I\'m thinking kimchi tacos or bulgogi quesadillas. What kind of flavor journey are we taking - lunch, dinner, or maybe some killer appetizers?', time: '10:15 AM' }
+                ],
+                'Spicy Kimchi Ramen': [
+                    { role: 'user', message: 'Show me my favorite recipes', time: '9:30 AM' },
+                    { role: 'assistant', message: 'Coming right up! I found 12 amazing recipes in your favorites collection. These are your greatest hits! Click on any of them or tell me which one catches your eye.', time: '9:30 AM' },
+                    { role: 'user', message: 'Show me the kimchi ramen recipe details', time: '9:31 AM' },
+                    { role: 'assistant', message: 'Now we\'re talking! Here\'s your legendary Spicy Kimchi Ramen recipe. This bowl of comfort is pure magic - fermented kimchi meets silky ramen noodles. Ready to dive into the delicious details?', time: '9:31 AM' }
+                ],
+                'Quick Lunch Ideas': [
+                    { role: 'user', message: 'I need something healthy that I can take to work', time: 'Yesterday' },
+                    { role: 'assistant', message: 'Ah, the eternal lunch struggle! I\'ve got your back with some portable powerhouses: mason jar salads that stay crispy, grain bowls that travel like champs, wraps that won\'t fall apart, and bento boxes that make lunch feel fancy. What flavors are singing to you today?', time: 'Yesterday' },
+                    { role: 'user', message: 'Something Mediterranean would be great', time: 'Yesterday' }
+                ]
+            };
+            
+            const messages = chatData[chatTitle] || [
+                { role: 'assistant', message: 'Loading chat history...', time: 'Now' }
+            ];
+            
+            chatMessages.innerHTML = messages.map(msg => `
+                <div class="chat-message ${msg.role}">
+                    <div>${msg.message}</div>
+                    <div class="message-time">${msg.time}</div>
+                </div>
+            `).join('');
+            
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Update main content based on chat
+            if (chatTitle === 'Spicy Kimchi Ramen') {
+                showRecipeDetail();
+                document.getElementById('contentTitle').textContent = 'Spicy Kimchi Ramen';
+            } else {
+                // Could show other views based on different chats
+                // For now, keep the recipe detail as default
+            }
+        }
+        
+        function startNewChat() {
+            // Hide active chat area if visible
+            document.getElementById('activeChatArea').classList.remove('visible');
+            
+            // Show chat list
+            document.getElementById('chatList').classList.remove('hidden');
+            document.querySelector('.new-chat-btn').classList.remove('hidden');
+            
+            // Add new chat to bottom of list (most recent)
+            const chatList = document.getElementById('chatList');
+            const newChatItem = document.createElement('div');
+            newChatItem.className = 'chat-item';
+            newChatItem.onclick = () => openChat(newChatItem, 'New Recipe Chat');
+            newChatItem.innerHTML = `
+                <div class="chat-item-title">New Recipe Chat</div>
+                <div class="chat-item-preview">What would you like to create today?</div>
+                <div class="chat-item-meta">
+                    <span class="chat-item-time">Just now</span>
+                    <span class="chat-item-status status-draft">Draft</span>
+                </div>
+            `;
+            
+            // Remove active from other chats
+            document.querySelectorAll('.chat-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add as last child (appears at bottom with flex-direction: column-reverse)
+            chatList.appendChild(newChatItem);
+            
+            // Auto-open the new chat
+            openChat(newChatItem, 'New Recipe Chat');
+            
+            // Show welcome screen in main area
+            showWelcomeScreen();
+        }
+        
+        function askAboutRecipe(question) {
+            // Auto-populate the chat input with the question
+            document.getElementById('chatInput').value = question;
+            
+            // If not in active chat, switch to it
+            const activeChatArea = document.getElementById('activeChatArea');
+            if (!activeChatArea.classList.contains('visible')) {
+                // Find and open the current recipe's chat (or create new one)
+                const currentChatItem = document.querySelector('.chat-item.active') || 
+                                      document.querySelector('.chat-item');
+                if (currentChatItem) {
+                    openChat(currentChatItem, currentChatItem.querySelector('.chat-item-title').textContent);
+                }
+            }
+            
+            // Focus the input and send the message
+            document.getElementById('chatInput').focus();
+            // Optionally auto-send the message
+            sendMessage();
+        }
+        
+        // Initialize with Spicy Kimchi Ramen chat open to show recipe detail
+        document.addEventListener('DOMContentLoaded', function() {
+            const kimchiChat = document.querySelector('.chat-item[onclick*="Spicy Kimchi Ramen"]');
+            if (kimchiChat) {
+                openChat(kimchiChat, 'Spicy Kimchi Ramen');
+            }
+        });
+        
+        function showRecipeDetail() {
+            document.getElementById('contentTitle').textContent = "Spicy Kimchi Ramen";
+            document.getElementById('contentArea').innerHTML = `
+                <div class="recipe-detail">
+                    <div class="recipe-header">
+                        <div class="recipe-main-image">🍜</div>
+                        <div class="recipe-info">
+                            <h1>Spicy Kimchi Ramen</h1>
+                            <p class="recipe-description">A comforting bowl of instant ramen elevated with fermented kimchi, soft-boiled eggs, and aromatic vegetables. This fusion dish brings together the umami richness of kimchi with the satisfying warmth of ramen noodles.</p>
+                            <div class="recipe-stats">
+                                <div class="stat-box">
+                                    <div class="stat-value">25</div>
+                                    <div class="stat-label">Minutes</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-value">2</div>
+                                    <div class="stat-label">Servings</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-value">★★★</div>
+                                    <div class="stat-label">Spice Level</div>
+                                </div>
+                            </div>
+                            <div class="dietary-tags">
+                                <span class="tag">Vegetarian</span>
+                                <span class="tag">Spicy</span>
+                                <span class="tag">Comfort Food</span>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary">Save Recipe</button>
+                                <button class="btn btn-secondary">Share</button>
+                                <button class="btn btn-secondary">Modify</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recipe-sections">
+                        <div class="ingredients-section">
+                            <h3>Ingredients</h3>
+                            <div class="ingredient-item">
+                                <span>Instant ramen noodles</span>
+                                <span>2 packs</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span>Kimchi, chopped</span>
+                                <span>1 cup</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span>Eggs</span>
+                                <span>2 large</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span>Green onions</span>
+                                <span>2 stalks</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span>Garlic, minced</span>
+                                <span>2 cloves</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span>Sesame oil</span>
+                                <span>1 tbsp</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span>Gochugaru (Korean chili flakes)</span>
+                                <span>1 tsp</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span>Soy sauce</span>
+                                <span>1 tbsp</span>
+                            </div>
+                        </div>
+                        
+                        <div class="instructions-section">
+                            <h3>Instructions</h3>
+                            <ol>
+                                <li>Start by soft-boiling the eggs. Bring water to a boil, gently add eggs, and cook for 6-7 minutes. Transfer to ice water and set aside.</li>
+                                <li>Heat sesame oil in a large pot over medium heat. Add minced garlic and sauté until fragrant, about 30 seconds.</li>
+                                <li>Add chopped kimchi to the pot and stir-fry for 2-3 minutes until slightly caramelized.</li>
+                                <li>Pour in 4 cups of water and bring to a boil. Add the ramen seasoning packets and gochugaru.</li>
+                                <li>Add the ramen noodles and cook according to package directions, usually 3-4 minutes.</li>
+                                <li>Stir in soy sauce and adjust seasoning to taste.</li>
+                                <li>Peel the soft-boiled eggs and cut in half. Slice the green onions.</li>
+                                <li>Divide the ramen between two bowls, top with halved eggs, green onions, and extra kimchi if desired.</li>
+                                <li>Serve immediately while hot and enjoy!</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Initialize with welcome screen
+        // showWelcomeScreen();
+    </script>
+</body>
+</html>

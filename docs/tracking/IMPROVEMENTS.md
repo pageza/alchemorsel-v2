@@ -153,6 +153,44 @@
 - **Created**: 2025-06-18
 - **Updated**: 2025-06-18
 
+### 🔶 **IMPROVE-007: Recipe Tagging System Enhancement**
+- **Status**: 📋 Planning
+- **Priority**: Medium
+- **Type**: Infrastructure
+- **Component**: Backend Data Organization + Frontend Filtering
+- **Description**: 
+  - Improve recipe tagging system with organized hierarchy
+  - Implement primary vs secondary tag classification
+  - Define comprehensive tag categories (Dinner, Lunch, Breakfast, Main Course, Vegan, Soup, etc.)
+  - Create logic for determining primary tag priority
+  - Enable multi-tag recipes with proper organization
+  - Enhance filtering and sorting based on tag hierarchy
+- **Business Value**: Better recipe organization, improved discovery, enhanced user experience
+- **Acceptance Criteria**:
+  - [ ] Define comprehensive tag taxonomy and categories
+  - [ ] Implement primary tag selection algorithm
+  - [ ] Support multiple tags per recipe with hierarchy
+  - [ ] Update database schema for enhanced tag structure
+  - [ ] Enhance frontend filtering and sorting by tag priority
+  - [ ] Add tag management interface for recipes
+  - [ ] Migrate existing recipes to new tagging system
+- **Files to Modify**:
+  - `backend/internal/models/recipe.go` (tag structure)
+  - `backend/migrations/[new]_enhanced_recipe_tags.sql`
+  - `backend/internal/service/recipe.go` (tag logic)
+  - `frontend/src/components/Recipe/TagSelector.vue` (new)
+  - `frontend/src/views/RecipeListView.vue` (filtering)
+  - `frontend/src/services/recipe.service.ts` (tag operations)
+- **Example Logic**: 
+  - "Beef Stew" → Primary: "Beef", Secondary: ["Main Course", "Dinner", "Soup"]
+  - Tag priority: Protein > Course > Meal Time > Dietary > Cooking Method
+- **Effort Estimate**: 5-7 days
+- **Source**: User Notes - Recipe Organization Enhancement
+- **Dependencies**: Recipe system, database migration capabilities
+- **Assigned**: Unassigned
+- **Created**: 2025-06-27
+- **Updated**: 2025-06-27
+
 ## 🌟 **Quality of Life Improvements**
 
 ### 🔶 **IMPROVE-006: Developer Experience Enhancement**
@@ -197,11 +235,11 @@
 
 ## 📊 **Improvement Statistics**
 
-- **Total Improvements**: 6
+- **Total Improvements**: 7
 - **High Priority**: 2
-- **Medium Priority**: 2
+- **Medium Priority**: 3
 - **Low Priority**: 2
-- **In Planning**: 5
+- **In Planning**: 6
 - **Backlog**: 1
 
 ## 🏷️ **Improvement Categories**

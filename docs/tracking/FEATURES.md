@@ -244,6 +244,153 @@
 - **Effort Estimate**: 14-21 days
 - **Dependencies**: User system, activity tracking
 
+### 🔶 **FEATURE-010: AI Chat Interface Overhaul**
+- **Status**: 💭 Backlog
+- **Priority**: Medium
+- **Type**: Major UI Enhancement
+- **Component**: Frontend Architecture + Backend AI Integration
+- **Description**: 
+  - Convert interface from traditional navigation to AI chat-based interaction
+  - Left panel: AI chat interface with hard navigation (Home/Profile/Browse)
+  - Right panel: Dynamic content display based on AI commands
+  - Voice commands like "Show me my recipes", "Show last recipe we worked on"
+  - Toggle between Interactive Chat mode and Traditional mode
+  - AI assistant can execute most user stories through natural language
+- **Business Value**: Revolutionary UX, increased engagement, AI-first experience
+- **Acceptance Criteria**:
+  - [ ] Split-panel layout: chat left, content right
+  - [ ] Natural language processing for user commands
+  - [ ] AI can navigate app and display content dynamically
+  - [ ] Toggle between chat mode and traditional navigation
+  - [ ] Voice command support for common actions
+  - [ ] AI memory of conversation context and user preferences
+- **Dependencies**: 
+  - Enhanced AI/LLM integration for natural language processing
+  - Complete UI/UX redesign
+  - Backend API enhancements for AI-driven navigation
+- **Effort Estimate**: 14-21 days (Major overhaul)
+- **User Stories**: 
+  - `As a user, I want to interact with the app using natural language commands`
+  - `As a user, I want AI to remember our conversation and recipe work`
+- **Files to Create/Modify**:
+  - `frontend/src/layouts/ChatLayout.vue` (new)
+  - `frontend/src/components/Chat/AIAssistant.vue` (new)
+  - `frontend/src/services/nlp.service.ts` (new)
+  - `backend/internal/service/ai_navigation.go` (new)
+  - Major refactoring of existing views and components
+- **Assigned**: Unassigned
+- **Created**: 2025-06-27
+- **Updated**: 2025-06-27
+
+### 🔶 **FEATURE-011: Interactive Cooking Mode**
+- **Status**: 💭 Backlog
+- **Priority**: Medium
+- **Type**: Workflow Enhancement
+- **Component**: Frontend Recipe Experience + Backend State Management
+- **Description**: 
+  - Add "Start" button to begin interactive cooking session
+  - Step-by-step cooking guidance with state tracking
+  - Pre-heating reminders as first step when needed
+  - Interactive ingredient checklist during prep phase
+  - Sequential step-by-step instructions with progress tracking
+  - "Cooked!" completion button with photo upload encouragement
+  - BONUS: AI-generated initial recipe images that evolve with user photos
+- **Business Value**: Enhanced user experience, increased engagement, social content
+- **Acceptance Criteria**:
+  - [ ] "Start" button initiates cooking session
+  - [ ] Pre-heating instructions appear first when applicable
+  - [ ] Interactive ingredient checklist with checkboxes
+  - [ ] Step-by-step instruction progression
+  - [ ] Completion flow with photo upload
+  - [ ] Session state persistence (can pause/resume)
+  - [ ] AI image generation and evolution (advanced feature)
+- **Dependencies**: 
+  - Recipe detail view enhancement
+  - Image storage and processing system
+  - AI image generation API (for bonus feature)
+- **Effort Estimate**: 7-10 days
+- **User Stories**: 
+  - `As a user, I want guided cooking with step-by-step instructions`
+  - `As a user, I want to track my cooking progress interactively`
+- **Files to Create/Modify**:
+  - `frontend/src/components/Recipe/CookingMode.vue` (new)
+  - `frontend/src/stores/cooking.store.ts` (new)
+  - `backend/internal/api/cooking_session.go` (new)
+  - `backend/internal/service/image_evolution.go` (new)
+- **Assigned**: Unassigned
+- **Created**: 2025-06-27
+- **Updated**: 2025-06-27
+
+### 🔶 **FEATURE-012: User Preference Learning System**
+- **Status**: 💭 Backlog
+- **Priority**: Low
+- **Type**: AI Enhancement
+- **Component**: Backend AI Service + Database Analytics
+- **Description**: 
+  - Track user preferences over time for personalized recommendations
+  - Analyze flavor profiles: fat/acid/salt/heat balance preferences
+  - Learn from user recipe creation, favoriting, and rating patterns
+  - Provide tailored suggestions while maintaining discovery variety
+  - Deep preference analysis beyond just cuisine type preferences
+- **Business Value**: Personalized experience, increased user retention, AI differentiation
+- **Acceptance Criteria**:
+  - [ ] User activity tracking system (views, favorites, generates, completes)
+  - [ ] Flavor profile analysis and preference modeling
+  - [ ] Preference-based recommendation engine
+  - [ ] Balance between personalization and discovery
+  - [ ] Privacy controls for preference data
+  - [ ] Gradual learning with user feedback loops
+- **Dependencies**: 
+  - Extended user analytics system
+  - Machine learning infrastructure
+  - Flavor/nutrition analysis capabilities
+- **Effort Estimate**: 14-21 days (ML system)
+- **User Stories**: 
+  - `As a user, I want recipe suggestions that learn from my preferences`
+  - `As a user, I want AI to understand my flavor preferences over time`
+- **Files to Create/Modify**:
+  - `backend/internal/service/preference_learning.go` (new)
+  - `backend/internal/models/user_preferences.go` (enhanced)
+  - `backend/internal/analytics/` (new package)
+  - Database schema for preference tracking
+- **Assigned**: Unassigned
+- **Created**: 2025-06-27
+- **Updated**: 2025-06-27
+
+### 🔶 **FEATURE-013: Custom Dietary Restrictions**
+- **Status**: 💭 Backlog
+- **Priority**: Medium
+- **Type**: Feature Enhancement
+- **Component**: Frontend Profile Management + Backend Validation
+- **Description**: 
+  - Allow users to add custom dietary restrictions/allergies beyond predefined list
+  - Require clear parameters and descriptions for custom restrictions
+  - Validation system to ensure restrictions are properly defined
+  - Integration with AI recipe generation for custom restriction enforcement
+- **Business Value**: Comprehensive dietary support, accessibility, user satisfaction
+- **Acceptance Criteria**:
+  - [ ] "Add Custom Restriction" option in profile editing
+  - [ ] Form requiring restriction name, description, and parameters
+  - [ ] Validation for clear and actionable restriction definitions
+  - [ ] Integration with existing dietary restriction enforcement
+  - [ ] AI prompt enhancement to handle custom restrictions
+  - [ ] User-friendly display of custom vs predefined restrictions
+- **Dependencies**: 
+  - Existing dietary restriction system
+  - Enhanced LLM prompt system for custom restrictions
+- **Effort Estimate**: 2-3 days
+- **User Stories**: 
+  - `As a user with unique dietary needs, I want to define custom restrictions`
+  - `As a user, I want AI to respect my custom dietary requirements`
+- **Files to Create/Modify**:
+  - `frontend/src/components/Profile/CustomRestrictionForm.vue` (new)
+  - `backend/internal/models/custom_restrictions.go` (new)
+  - `backend/internal/service/dietary_validation.go` (enhanced)
+  - Database migration for custom restrictions table
+- **Assigned**: Unassigned
+- **Created**: 2025-06-27
+- **Updated**: 2025-06-27
+
 ## 📋 **Feature Workflow States**
 
 - **💭 Backlog** - Identified but not planned
