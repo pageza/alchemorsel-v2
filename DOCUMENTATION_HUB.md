@@ -37,6 +37,13 @@ What do you need to do?
   - Coding guidelines and conventions
   - Version management guidelines
 
+### 📚 **Granular Documentation**
+- **[GRANULAR_DOCUMENTATION_INDEX.md](./docs/GRANULAR_DOCUMENTATION_INDEX.md)** - 🔍 **Component-level documentation**
+  - Individual page and component documentation
+  - Feature-specific documentation with versioning
+  - Targeted development and rollback guides
+  - Frontend and backend detailed references
+
 ---
 
 ## 🎯 **Granular Work Tracking**

@@ -4,17 +4,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## ⚡ **Quick Start for AI Assistants**
 
-**When given ANY task, immediately start with:**
+### 🎯 **Focused Commands** (For Targeted Work)
+**For specific component work, use focused commands:**
+- **`FIX PAGE LoginView`** - Target specific page issues
+- **`ENHANCE COMPONENT RecipeCard`** - Improve specific components  
+- **`DEBUG FEATURE auth`** - Troubleshoot feature areas
+- **`UPDATE ENDPOINT /api/v1/auth/login`** - Modify specific APIs
+
+📋 **See [docs/FOCUSED_COMMANDS.md](./docs/FOCUSED_COMMANDS.md) for complete command reference**
+
+### 🔄 **Systematic Process** (For Complex Work)
+**For multi-component or new feature work, use the systematic process:**
 1. 📥 **[docs/processes/INTAKE_PARSER.md](./docs/processes/INTAKE_PARSER.md)** - Parse and classify the request
 2. 🔍 **[docs/processes/CODEBASE_ANALYSIS.md](./docs/processes/CODEBASE_ANALYSIS.md)** - Understand existing patterns  
 3. Follow the remaining systematic process below ⬇️
 
-**NEVER start coding immediately** - always follow the complete process chain for quality results.
+### 🤔 **Decision Tree**
+- **Single component issue?** → Use **Focused Commands**
+- **Multiple components/new feature?** → Use **Systematic Process**
+- **Not sure?** → Start with **Focused Commands**, escalate if needed
 
 ## 🗺️ **Navigation Guide**
 **For comprehensive project navigation, start with [DOCUMENTATION_HUB.md](./DOCUMENTATION_HUB.md)**
 
+- **Targeted component work?** → Use [Focused Commands](./docs/FOCUSED_COMMANDS.md)
 - **Need to implement something?** → Follow the [Systematic Development Process](#systematic-development-process)
+- **Understanding specific components?** → See [Granular Documentation](./docs/GRANULAR_DOCUMENTATION_INDEX.md)
 - **Understanding architecture?** → Continue reading below
 - **Quick reference?** → See [Development Commands](#development-commands)
 

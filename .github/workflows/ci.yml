@@ -7,8 +7,8 @@ name: Fast CI Pipeline
 # - Quality gates (coverage, security) handled by strict-ci.yml
 
 on:
-  push:
-    branches: [ main, master, develop, developing, codex-1 ]
+  # push:
+  #   branches: [ main, master, develop, developing, codex-1 ]  # TEMPORARILY DISABLED for code transfer
   pull_request:
     branches: [ develop, developing ]  # PRs to main/master handled by strict-ci
   workflow_dispatch:

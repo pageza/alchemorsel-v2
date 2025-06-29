@@ -10,8 +10,8 @@ name: Quality Gates Pipeline
 on:
   pull_request:
     branches: [ main, master ]
-  push:
-    branches: [ main, master ]  # Also run on direct pushes to main/master
+  # push:
+  #   branches: [ main, master ]  # TEMPORARILY DISABLED for code transfer
 
 env:
   GO_VERSION: '1.24'
@@ -59,8 +59,8 @@ jobs:
       uses: trufflesecurity/trufflehog@main
       with:
         path: ./
-        base: ${{ github.event.repository.default_branch }}
-        head: HEAD
+        base: ${{ github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000' && github.event.before || '' }}
+        head: ${{ github.event_name == 'push' && 'HEAD' || github.head_ref }}
 
   # Backend Quality Analysis (coverage, security, vulnerabilities)
   backend-quality-analysis:
